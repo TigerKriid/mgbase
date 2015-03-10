@@ -338,12 +338,7 @@ function SWEP:PrimaryAttack()
 local owner = self.Owner
 if self:Clip1() <= 0 then return end
 if owner:GetNWBool("owner_sprinting") == true then return end
-if SERVER then
 if owner:GetNWBool("owner_reloading") == true then return end
-end
-if CLIENT then
-if cl_reloading == true then return end
-end
  /* SERVER STUFF*/
  self:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
  self:EmitSound(self.Primary.Sound,100,math.random(97,102))
@@ -383,7 +378,7 @@ end
 if !self.ShellEjectTime then
 self:CreateShell()
 else
-timer.Simple(self.ShellEjectTime - self.Owner:Ping()/1000,function() if IsValid(self.Owner) and not cl_reloading == true then self:CreateShell() end end)
+timer.Simple(self.ShellEjectTime - self.Owner:Ping()/1000,function() if IsValid(self.Owner) and not owner:GetNWBool("owner_reloading") == true then self:CreateShell() end end)
 end
 end
 end
@@ -419,9 +414,6 @@ if self:Clip1() == self.Primary.ClipSize or self:Ammo1() == 0 then return end
  self:SendVMAnim("start_reload")
  end
  self:MergeReloadFunction()
- if CLIENT then
- cl_reloading = true
- end
  m_FireSpread = 0
  cl_Recoil = 0
 end
@@ -431,7 +423,7 @@ function SWEP:Deploy()
  self:SetNoDraw(true)
  self.Owner:SetNWBool("owner_drawing",true)
  self.Owner:SetNWBool("owner_reloading",false)
- if SERVER then self:SetEvent({"reloading","drawing"},{"false","true"}) end
+ --if SERVER then self:SetEvent({"reloading","drawing"},{"false","true"}) end
  self.Owner:SetNWString("drawtime",CurTime())
 /* CLIENT STUFF*/   
  if not IsFirstTimePredicted() then return end
@@ -442,7 +434,7 @@ self.Owner:SetNWBool("owner_drawing",false)
 self.Owner:SetNWBool("owner_reloading",false)
 self.Owner:GetNWString("reloadtimedef",nil)
 if CLIENT then LocalPlayer().ViewModel:SetSubMaterial("") end
-if SERVER then self:SetEvent({"reloading","drawing"},{"false","false"}) end
+--if SERVER then self:SetEvent({"reloading","drawing"},{"false","false"}) end
 return true
 end
 
@@ -470,18 +462,15 @@ if self.Owner:GetNWString("reloadtimedef") != nil and CurTime() > self.Owner:Get
 if !self.ReloadTime then
 self:SetClip1(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) + self:Clip1(),0,self.Primary.ClipSize)) self.Owner:SetAmmo(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) - ifyouworkikillyou,0,9999),self:GetPrimaryAmmoType())
 end
-if owner:GetNWBool("owner_reloading") == true then
 owner:SetNWBool("owner_reloading",false)
-if SERVER then self:SetEvent({"reloading"},{"false"}) end
-self:SetNextPrimaryFire(CurTime() + self.Owner:Ping() / 1000)
-end
+--if SERVER then self:SetEvent({"reloading"},{"false"}) end
 end
 end
 
 ------DRAW
 if self.Owner:GetNWBool("owner_drawing") == true then
 self.Owner:SetNWBool("owner_drawing",false)
-if SERVER then self:SetEvent({"drawing"},{"false"}) end
+--if SERVER then self:SetEvent({"drawing"},{"false"}) end
 end
 ---- STUFF.
 if owner:KeyDown(IN_ATTACK2) and owner:IsOnGround() and owner:GetNWBool("owner_sprinting") == false and self.Owner:GetNWBool("owner_reloading") == false and self.Owner:GetNWBool("owner_drawing") == false and owner:GetActiveWeapon().CanAIDS != false  then 
@@ -531,7 +520,7 @@ self.Owner:SetNWString("reloadtimedef",CurTime())
 if CLIENT then self:SendVMAnim("mid_reload") end
 elseif (self.Owner:KeyDown(IN_ATTACK) or self:Ammo1() == 0 or self:Clip1() == self.Primary.ClipSize) then
 owner:SetNWBool("owner_reloading",false)
-if SERVER then self:SetEvent({"reloading"},{"false"}) end
+--if SERVER then self:SetEvent({"reloading"},{"false"}) end
 if CLIENT then self:SendVMAnim("end_reload") end
 end
 end
@@ -559,7 +548,7 @@ s.played = false
 end
 end
 if CLIENT then
-if s.svsound == false and s.played == false and cl_reloading == true and CurTime() > self.Owner:GetNWString("reloadtimedef") + (s.time/self.Owner:GetViewModel():GetPlaybackRate()) then
+if s.svsound == false and s.played == false and owner:GetNWBool("owner_reloading") == true and CurTime() > self.Owner:GetNWString("reloadtimedef") + (s.time/self.Owner:GetViewModel():GetPlaybackRate()) then
 s.played = true 
 LocalPlayer():EmitSound(s.soundfile,75,100)
 elseif owner:GetNWBool("owner_reloading") == false or owner:GetNWString("reloadtimedef")  == CurTime() then
@@ -817,7 +806,7 @@ local tr = util.TraceLine( {
 	} )
 --- BLURS AND OTHER THINGIES
 if cvarblurs:GetInt() == 1 then
-if cl_reloading == true then
+if lp:GetNWBool("owner_reloading") == true then
 BlurLerp = Lerp(5*FrameTime(),BlurLerp,2)
 else BlurLerp = Lerp(5*FrameTime(),BlurLerp,0) end
 for i = 1,BlurLerp,0.5 do
@@ -875,7 +864,7 @@ end
 
 
 function SWEP:DrawHUD()
-	if cl_ironsights == false and cl_reloading == false and cl_sprinting == false and cvarcrosshair:GetInt() == 1 then
+	if cl_ironsights == false and self.Owner:GetNWBool("owner_reloading") == false and cl_sprinting == false and cvarcrosshair:GetInt() == 1 then
 	surface.SetDrawColor(cvarcrr:GetInt(),cvarcrg:GetInt(),cvarcrb:GetInt(),255)
 	surface.DrawRect(ScrW() / 2,ScrH() / 1.95 + self.Primary.Cone * 100 + m_FireSpread * 400 + m_MoveSpread * 300,ScreenScale(.5),ScreenScale(5))
 	surface.DrawRect(ScrW() / 2,ScrH() / 2.10 - self.Primary.Cone * 100 - m_FireSpread * 400 - m_MoveSpread * 300,ScreenScale(.5),ScreenScale(5))
@@ -1060,7 +1049,7 @@ filter = function(ent) if !ent:GetClass() == ("worldspawn" or "prop_physics") th
 CLVec.Target = (self.OriginPos or Vector(0,0,0)) + Vector(m_vmRandomize/3,-m_vmShake/2,-m_vmShake/2) + Vector(0,math.Clamp((CLVec.Trace.HitPos:Distance(CLVec.Trace.StartPos)-24),-5,0),0) + Vector(SwayInput.e_cmdX/200,SwayInput.e_cmdY/200,-SwayInput.e_cmdY/200 + SwayInput.e_cmdX/400) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10) + Vector(0,ply:EyeAngles().p/70,0)
 CLAng.Target = (self.OriginAng or Vector(0,0,0)) + Vector(m_vmShake*4 + BlandVert * 100 ,m_vmRandomize*3,0) + Vector(SwayInput.e_cmdY/15,SwayInput.e_cmdX/25,SwayInput.e_cmdX/15) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
 
-if owner:KeyDown(IN_ATTACK2) and owner:IsOnGround() and cl_sprinting  == false and cl_reloading == false and cl_drawing == false and owner:GetActiveWeapon().CanAIDS != false then
+if owner:KeyDown(IN_ATTACK2) and owner:IsOnGround() and cl_sprinting  == false and owner:GetNWBool("owner_reloading") == false and owner:GetNWBool("owner_drawing") == false and owner:GetActiveWeapon().CanAIDS != false then
 if cl_ironsights == false then 
 cl_ironsights = true
 owner:EmitSound(table.Random({"cw/sightraise2.wav","cw/sightraise1.wav"}),80,math.random(100,120))
@@ -1086,7 +1075,7 @@ if owner:KeyDown(IN_SPEED) and owner:IsOnGround() and owner:GetVelocity():Length
 if cl_sprinting == false then
 cl_sprinting = true
 end
-if cl_reloading == false then
+if owner:GetNWBool("owner_reloading") == false then
 CLVec.Target = self.SprintPos
 CLAng.Target = self.SprintAng
 end
@@ -1109,7 +1098,7 @@ end
 end
 
 ---- MORE CAMERA MOVEMENT
-if ( cl_reloading == true or cl_drawing == true) and !self.CamIgnore == true then
+if ( owner:GetNWBool("owner_reloading") == true or owner:GetNWBool("owner_drawing") == true) and !self.CamIgnore == true then
 	SAng.SmoothP = 0
 	SAng.SmoothYaw = 0
 	SAng.SmoothR = 0
@@ -1118,7 +1107,7 @@ else
 	SAng.SmoothYaw = Lerp(10*FrameTime(),SAng.SmoothYaw,0)
 	SAng.SmoothR = Lerp(10*FrameTime(),SAng.SmoothR,0)
 end
-if cl_ironsights == true and not cl_reloading == true and not cl_sprinting == true and not cl_drawing == true then
+if cl_ironsights == true and not owner:GetNWBool("owner_reloading") == true and not cl_sprinting == true and not owner:GetNWBool("owner_drawing") == true then
 FOV_t = (self.IronSightsFOV or 80) - SApp * 3
 else
 FOV_t = math.Clamp(LocalPlayer():GetInfoNum("fov_desired",90) + SApp * 2,90,100)
@@ -1203,10 +1192,10 @@ function CLThink()
 local self = LocalPlayer():GetActiveWeapon()
 if self.DrawSounds then
 for i,ds in pairs(self.DrawSounds) do
-if cl_drawing == true and ds.played == false  and CurTime() > tonumber(self.Owner:GetNWString("drawtime")) + ((ds.time - self.Owner:Ping() / 1000) / self.Owner:GetViewModel():GetPlaybackRate()) then
+if owner:GetNWBool("owner_drawing") == true and ds.played == false  and CurTime() > tonumber(self.Owner:GetNWString("drawtime")) + ((ds.time - self.Owner:Ping() / 1000) / self.Owner:GetViewModel():GetPlaybackRate()) then
 ds.played = true 
 LocalPlayer():EmitSound(ds.soundfile,75,100)
-elseif cl_drawing == false or CurTime() < tonumber(self.Owner:GetNWString("drawtime")) + ((ds.time - self.Owner:Ping() / 1000) / self.Owner:GetViewModel():GetPlaybackRate()) then
+elseif owner:GetNWBool("owner_drawing") == false or CurTime() < tonumber(self.Owner:GetNWString("drawtime")) + ((ds.time - self.Owner:Ping() / 1000) / self.Owner:GetViewModel():GetPlaybackRate()) then
 ds.played = false
 end
 end
