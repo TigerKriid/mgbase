@@ -1189,7 +1189,8 @@ end
 
 if CLIENT then
 function CLThink()
-local self = LocalPlayer():GetActiveWeapon()
+local owner = LocalPlayer()
+local self = owner:GetActiveWeapon()
 if self.DrawSounds then
 for i,ds in pairs(self.DrawSounds) do
 if owner:GetNWBool("owner_drawing") == true and ds.played == false  and CurTime() > tonumber(self.Owner:GetNWString("drawtime")) + ((ds.time - self.Owner:Ping() / 1000) / self.Owner:GetViewModel():GetPlaybackRate()) then
