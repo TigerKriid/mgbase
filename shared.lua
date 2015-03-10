@@ -393,9 +393,9 @@ if self.Owner:GetNWBool("owner_reloading") == true then return end
 if self:LastShootTime() + self.Primary.Delay > CurTime() then return end
 -----------------
 if self:Clip1() == self.Primary.ClipSize or self:Ammo1() == 0 then return end
- self.Owner:SetNWString("reloadtimedef",math.Truncate(CurTime(),3))
+ self.Owner:SetNWString("reloadtimedef",CurTime())
  if (!self.IsShotgun or self.IsShotgun == false) then
- self.Owner:SetNWString("reloadsequence_time",math.Truncate(self.Owner:GetViewModel():SequenceDuration(self.Owner:GetViewModel():LookupSequence(table.Random(self.Animations["reload"]))),3))
+ self.Owner:SetNWString("reloadsequence_time",self.Owner:GetViewModel():SequenceDuration(self.Owner:GetViewModel():LookupSequence(table.Random(self.Animations["reload"]))))
  end
  print(self.Owner:GetNWString("reloadsequence_time"))
  if self.IsShotgun == true then
