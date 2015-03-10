@@ -458,7 +458,7 @@ if self.Owner:GetNWString("reloadtimedef") != nil and CurTime() > self.Owner:Get
 self:SetClip1(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) + self:Clip1(),0,self.Primary.ClipSize)) self.Owner:SetAmmo(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) - ifyouworkikillyou,0,9999),self:GetPrimaryAmmoType())
 end
 end
-if self.Owner:GetNWString("reloadtimedef") != nil and CurTime() > self.Owner:GetNWString("reloadtimedef") + (owner:GetNWString("reloadsequence_time")/self.Owner:GetViewModel():GetPlaybackRate()) - self.Owner:Ping() / 1000 then
+if self.Owner:GetNWString("reloadtimedef") != nil and CurTime() > self.Owner:GetNWString("reloadtimedef") + (owner:GetNWString("reloadsequence_time")/self.Owner:GetViewModel():GetPlaybackRate()) then
 if !self.ReloadTime then
 self:SetClip1(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) + self:Clip1(),0,self.Primary.ClipSize)) self.Owner:SetAmmo(math.Clamp(self.Owner:GetAmmoCount(self:GetPrimaryAmmoType()) - ifyouworkikillyou,0,9999),self:GetPrimaryAmmoType())
 end
