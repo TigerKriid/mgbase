@@ -37,6 +37,9 @@ if SERVER then
 	damageInfo:SetDamage(tonumber(damage))
 	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
 	endt:TakeDamage(tonumber(damage),ply,weapon)
+	if OnBulletImpact then
+	OnBulletImpact(endt,damageInfo)
+	end
     end
 end)
 
