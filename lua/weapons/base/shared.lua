@@ -929,7 +929,7 @@ tab = self.Owner.ViewModel:GetAttachment(self.ShellAttachment)--- This updates t
 end
 end
 end
-hook.Add("CreateMove","BaseCam",m_PlayerCam)
+hook.Add("CreateMove","BaseCam111",m_PlayerCam)
 
 local xlerp = 0
 local ylerp = 0
