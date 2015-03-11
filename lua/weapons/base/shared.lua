@@ -29,13 +29,14 @@ if SERVER then
 	local endt = ents.GetByIndex(tonumber(target))
 	local weapon = ents.GetByIndex(inflictor)
 	local damageInfo = DamageInfo()
-	if IsValid(endt) and endt:GetClass() != "worldspawn" then
 	damageInfo:SetAttacker(ply)
 	damageInfo:SetInflictor(weapon)
-	damageInfo:SetDamagePosition(ply:GetPos())
+	damageInfo:SetDamagePosition(ply:GetEyeTrace().HitPos)
 	damageInfo:SetDamageType(DMG_BULLET)
 	damageInfo:SetDamage(tonumber(damage))
 	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
+	if IsValid(endt) and endt:GetClass() != "worldspawn" then
+
 	endt:TakeDamage(tonumber(damage),ply,weapon)
     end
     if OnBulletImpact then

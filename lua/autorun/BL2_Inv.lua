@@ -12,21 +12,21 @@ end)
 
 hook.Add("Think","BL2_Inventory_Manager",function()
 	for i,p in pairs(player.GetAll()) do
-	if p.inInventory == true then
-	p:SetNWBool("bl2_tk_inventory",true)
-	p:Freeze(true)
-	p:SetEyeAngles(Angle(0,p:EyeAngles().y,p:EyeAngles().r))
-	if p:GetActiveWeapon() != nil then
-	p:GetActiveWeapon():SetHoldType("passive")
-	end
-	elseif p.inInventory == false or !p:IsOnGround() then
-	p.inInventory = false
-	p:SetNWBool("bl2_tk_inventory",false)
-	p:Freeze(false)
-	if p:GetActiveWeapon() != nil then
-	p:GetActiveWeapon():SetHoldType(p:GetActiveWeapon().HoldType or "normal")
-	end
-	end
+		if p.inInventory == true then
+			p:SetNWBool("bl2_tk_inventory",true)
+			p:Freeze(true)
+			p:SetEyeAngles(Angle(0,p:EyeAngles().y,p:EyeAngles().r))
+			if IsValid(p:GetActiveWeapon()) then
+				p:GetActiveWeapon():SetHoldType("passive")
+			end
+		elseif p.inInventory == false or !p:IsOnGround() then
+			p.inInventory = false
+			p:SetNWBool("bl2_tk_inventory",false)
+			p:Freeze(false)
+			if IsValid(p:GetActiveWeapon()) then
+				p:GetActiveWeapon():SetHoldType(p:GetActiveWeapon().HoldType or "normal")
+			end
+		end
 	end
 end)
 
