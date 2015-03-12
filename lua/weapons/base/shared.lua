@@ -423,7 +423,7 @@ end
 
 function SWEP:Deploy()
 /* SERVER STUFF */
- self:SetNoDraw(true)
+-- self:SetNoDraw(true)
  self.Owner:SetNWBool("owner_drawing",true)
  self.Owner:SetNWBool("owner_reloading",false)
  --if SERVER then self:SetEvent({"reloading","drawing"},{"false","true"}) end
@@ -758,7 +758,8 @@ end
 function SWEP:PreDrawViewModel()
 end
 
---[[function SWEP:DrawWorldModelTranslucent()
+---[[
+function SWEP:DrawWorldModel()
 local wm = self.WModel
 if not IsValid(self.Owner) then
 self:DrawModel() return
@@ -774,10 +775,10 @@ if not wm:GetModelScale() != self.Owner:GetModelScale() then
 wm:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
 end
 if bone then
-if not self.WorldModelAng.p then
-self.WorldModelAng = Angle(0,0,0)
+if not self.WorldModelAng or not self.WorldModelAng.p then
+self.WorldModelAng = Angle(180,0,180)
 end
-if not self.WorldModelPos.x then
+if not self.WorldModelPos or not self.WorldModelPos.x then
 self.WorldModelPos = Vector(0,0,0)
 end
 local pos, ang = self.Owner:GetBonePosition(bone)
@@ -792,7 +793,8 @@ else
 self:DrawModel()
 end
 end
-end]]
+end
+--]]
 
 local tab = 0
 local attachment = 0
