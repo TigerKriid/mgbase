@@ -49,7 +49,7 @@ for i,d in pairs(received) do
 	cam.Start3D2D(d.dmgpos + d.secondfaggot:GetAngles():Forward()* -5,Angle(270,d.faggotang.y,0),.5)
 	surface.SetDrawColor(0,155,255,d.alpha) 
 	surface.SetMaterial(Material("sprites/mechshield"))
-	surface.DrawTexturedRect(0,0,d.dmgnumber * 2,d.dmgnumber * 2)
+	surface.DrawTexturedRect(-5,5,d.dmgnumber * 2,d.dmgnumber * 2)
 	cam.End3D2D()
 end
 end
