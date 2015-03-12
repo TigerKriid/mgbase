@@ -36,11 +36,10 @@ if SERVER then
 	damageInfo:SetDamage(tonumber(damage))
 	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
 	if IsValid(endt) and endt:GetClass() != "worldspawn" then
-
-	endt:TakeDamage(tonumber(damage),ply,weapon)
+		endt:TakeDamageInfo(damageInfo)
     end
     if OnBulletImpact then
-	OnBulletImpact(endt,damageInfo)
+		OnBulletImpact(endt,damageInfo)
 	end
 end)
 

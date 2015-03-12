@@ -1,36 +1,28 @@
 --fucking finally, 3 hours of this bullshit. -.-
 if SERVER then
 
-util.AddNetworkString("bl2_3d2dshield")
-local sv_sending = {}
-local tablenum = 0
-function SendDamageInfo(attacker,pos,damage,victim)
-tablenum = tablenum + 1
-sv_sending[tablenum] = {faggot = attacker,
-						faggotpos = attacker:GetPos(),
-						faggotang = attacker:GetAngles(),
-						dmgpos = pos,
-						dmgnumber = damage,
-						alpha = 255,
-						secondfaggot = victim,
-					}
-net.Start("bl2_3d2dshield")
-net.WriteTable(sv_sending)
-net.Broadcast()
-end
-hook.Add("EntityTakeDamage","bl2takedamageplz",function(target,dmg)
-if target:IsPlayer() and target:Armor() > 0 then
-SendDamageInfo(dmg:GetAttacker(),dmg:GetDamagePosition(),dmg:GetDamage(),target)
-end
-end)
+	util.AddNetworkString("bl2_3d2dshield")
+	local sv_sending = {}
+	function SendDamageInfo(attacker,pos,damage,victim)
+		local data =  	{
+							faggot = attacker,
+							faggotpos = attacker:GetPos(),
+							faggotang = attacker:GetAngles(),
+							dmgpos = pos,
+							dmgnumber = damage,
+							alpha = 255,
+							secondfaggot = victim,
+						}
 
-hook.Add("Think","mmmmmmhhhhh",function()
-for i, t in pairs(sv_sending) do
-t.alpha = Lerp(5*FrameTime(),t.alpha,0)
-if t.alpha <= 0 then table.remove(sv_sending,i) end
-end
-end)
-
+		net.Start("bl2_3d2dshield")
+			net.WriteTable(data)
+		net.Broadcast()
+	end
+	hook.Add("EntityTakeDamage","bl2takedamageplz",function(target,dmg)
+		if target:IsPlayer() and target:Armor() > 0 then
+			SendDamageInfo(dmg:GetAttacker(),dmg:GetDamagePosition(),dmg:GetDamage(),target)
+		end
+	end)
 end
 
 
@@ -39,20 +31,24 @@ end
 if CLIENT then
 local received = {}
 net.Receive("bl2_3d2dshield",function(len,ply)
-received = net.ReadTable()
+	received[#received + 1] = net.ReadTable()
 end)
 
 hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
-for i,d in pairs(received) do
-	if d.alpha > 1 then
-	d.alpha = Lerp(5*FrameTime(),d.alpha,0)
-	cam.Start3D2D(d.dmgpos + d.secondfaggot:GetAngles():Forward()* -5,Angle(270,d.faggotang.y,0),.5)
-	surface.SetDrawColor(0,155,255,d.alpha) 
-	surface.SetMaterial(Material("sprites/mechshield"))
-	surface.DrawTexturedRect(-5,5,d.dmgnumber * 2,d.dmgnumber * 2)
-	cam.End3D2D()
-end
-end
+	for i,d in pairs(received) do
+		if d.alpha > 1 then
+			d.alpha = Lerp(5*FrameTime(),d.alpha,0)
+			local offset = d.secondfaggot:GetAngles()
+			cam.Start3D2D(d.dmgpos + offset:Forward() * -5 + offset:Right() * 15,Angle(270,d.faggotang.y,0),.5)
+				surface.SetDrawColor(0,155,255,d.alpha) 
+				surface.SetMaterial(Material("sprites/mechshield"))
+				surface.DrawTexturedRect(-5,5,d.dmgnumber * 2,d.dmgnumber * 2)
+			cam.End3D2D()
+		else
+			received[i] = nil
+		end
+		d.alpha = Lerp(5*FrameTime(),d.alpha,0)
+	end
 end)
 
 local s_alpha1 = 0
