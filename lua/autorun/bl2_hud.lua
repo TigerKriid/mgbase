@@ -38,8 +38,8 @@ hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
 	for i,d in pairs(received) do
 		if d.alpha > 1 then
 			d.alpha = Lerp(5*FrameTime(),d.alpha,0)
-			local offset = d.secondfaggot:GetAngles()
-			cam.Start3D2D(d.dmgpos,Angle(270,d.faggotang.y,0),.5)
+			local offset = Angle(270,d.faggotang.y,0)
+			cam.Start3D2D(d.dmgpos + offset:Up() * 35,Angle(270,d.faggotang.y,0),.5)
 				surface.SetDrawColor(0,155,255,d.alpha) 
 				surface.SetMaterial(Material("sprites/mechshield"))
 				local size = d.dmgnumber * 2
