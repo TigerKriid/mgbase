@@ -39,10 +39,11 @@ hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
 		if d.alpha > 1 then
 			d.alpha = Lerp(5*FrameTime(),d.alpha,0)
 			local offset = d.secondfaggot:GetAngles()
-			cam.Start3D2D(d.dmgpos + offset:Forward() * -5 + offset:Right() * 15,Angle(270,d.faggotang.y,0),.5)
+			cam.Start3D2D(d.dmgpos,Angle(270,d.faggotang.y,0),.5)
 				surface.SetDrawColor(0,155,255,d.alpha) 
 				surface.SetMaterial(Material("sprites/mechshield"))
-				surface.DrawTexturedRect(-5,5,d.dmgnumber * 2,d.dmgnumber * 2)
+				local size = d.dmgnumber * 2
+				surface.DrawTexturedRect(-size/2,-size/2,size,size)
 			cam.End3D2D()
 		else
 			received[i] = nil
