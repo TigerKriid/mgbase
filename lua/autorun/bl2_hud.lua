@@ -2,10 +2,10 @@
 if SERVER then
 util.AddNetworkString("bl2_3d2dshield")
 
-hook.Add("PlayerHurt","fuckthisshitpolz",function(victim,attacker,damageTaken,healthRemaining)
-if victim:IsPlayer() and victim:Armor() > 0 then
+hook.Add("EntityTakeDamage","fuckthisshitpolz",function(victim,dmginfo)
+if victim:IsPlayer() then
 net.Start("bl2_3d2dshield")
-net.WriteTable({victim,attacker,healthRemaining})
+net.WriteTable({victim,dmginfo:GetAttacker(),dmginfo:GetDamage()})
 net.Broadcast()
 end
 end)
@@ -50,11 +50,12 @@ local tablenum = 0
 
 hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
 	for i,d in pairs(received) do
+
 		if d.alpha > 1 then
 			d.alpha = Lerp(1*FrameTime(),d.alpha,0)
 			local offset = Angle(270,d.faggotang.y,0)
 
-			cam.Start3D2D(d.dmgpos + d.randompos + offset:Up() * 15,Angle(270,d.faggotang.y,0),.5)
+			cam.Start3D2D(d.dmgpos + d.randompos + offset:Up() * 67,Angle(270,d.faggotang.y,0),.5)
 				surface.SetDrawColor(0,155,255,d.alpha) 
 				surface.SetMaterial(Material("sprites/mechshield"))
 				local size = 20 + d.dmgnumber
@@ -67,17 +68,17 @@ hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
 	end
 end)
 
-net.Receive("bl2_3d2dshield",function(len,ply)
-local cltable = net.ReadTable()
-tablenum = tablenum + 1
-received[tablenum] = {		faggot = cltable[2],
-							faggotpos = cltable[2]:GetPos(),
-							faggotang = cltable[2]:GetAngles(),
-							dmgnumber = cltable[3],
-							dmgpos = cltable[1]:EyePos(),
-							randompos = Vector(0,0,math.random(-20,2)),
-							alpha = 255,
-							secondfaggot = cltable[1],
-}
-end)
+	net.Receive("bl2_3d2dshield",function(len,ply)
+		local cltable = net.ReadTable()
+		received[#received + 1] = {		
+			faggot = cltable[2],
+			faggotpos = cltable[2]:GetPos(),
+			faggotang = cltable[2]:GetAngles(),
+			dmgnumber = cltable[3],
+			dmgpos = cltable[1]:EyePos(),
+			randompos = Vector(0,0,math.random(-20,2)),
+			alpha = 255,
+			secondfaggot = cltable[1],
+		}
+	end)
 end
