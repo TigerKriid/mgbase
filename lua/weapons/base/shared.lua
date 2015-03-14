@@ -29,17 +29,17 @@ if SERVER then
 	local endt = ents.GetByIndex(tonumber(target))
 	local weapon = ents.GetByIndex(inflictor)
 	local damageInfo = DamageInfo()
+	if IsValid(endt) and endt:GetClass() != "worldspawn" then
 	damageInfo:SetAttacker(ply)
 	damageInfo:SetInflictor(weapon)
-	damageInfo:SetDamagePosition(ply:GetEyeTrace().HitPos)
+	damageInfo:SetDamagePosition(ply:GetPos())
 	damageInfo:SetDamageType(DMG_BULLET)
 	damageInfo:SetDamage(tonumber(damage))
 	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
-	if IsValid(endt) and endt:GetClass() != "worldspawn" then
-		endt:TakeDamageInfo(damageInfo)
+	endt:TakeDamage(tonumber(damage),ply,weapon)
     end
     if OnBulletImpact then
-		OnBulletImpact(endt,damageInfo)
+	OnBulletImpact(endt,damageInfo)
 	end
 end)
 
@@ -53,7 +53,7 @@ Entity(tonumber(pent)):EmitSound(Entity(tonumber(pent)).sounding,75,100)
 end)
 end
 game.AddParticles("particles/muzzleflashes_test.pcf")
-game.AddParticles("particles/muzzle_flash.pcf")
+game.AddParticles("particles/hunter_projectile.pcf")
 game.AddParticles("particles/muzzleflashes_test_b.pcf")
 game.AddParticles("particles/buu_particles.pcf")
 game.AddParticles("particles/devtest.pcf")
@@ -79,6 +79,7 @@ PrecacheParticleSystem("muzzleflash_m79")
 PrecacheParticleSystem("weapon_muzzle_flash_assaultrifle")
 PrecacheParticleSystem("weapon_muzzle_smoke")
 PrecacheParticleSystem("strider_headbeating_01c")
+PrecacheParticleSystem("hunter_projectile_1")
 
 local Shells = {
 ["9mm"] = "models/shells/shell_9mm.mdl",
@@ -358,7 +359,11 @@ end
  /*CLIENT OR UNPREDICTED STUFF*/
  if not IsFirstTimePredicted() then return end
  m_vmRandomize = math.random(-cl_Shake,cl_Shake)
+ if cl_ironsights == false then
  m_FireSpread = math.Clamp(m_FireSpread + (self.AddConeSpread/100),0,(self.MaxConeSpread/100))
+ else
+ m_FireSpread = math.Clamp(m_FireSpread + (self.AddConeSpread/150),0,(self.MaxConeSpread/100))
+ end
 if CLIENT then
 if cl_ironsights == true then
 cl_Shake = cl_Shake + (self.AddShakeSpread / 1.6) * self.m_BL2Value
@@ -423,7 +428,7 @@ end
 
 function SWEP:Deploy()
 /* SERVER STUFF */
--- self:SetNoDraw(true)
+ self:SetNoDraw(true)
  self.Owner:SetNWBool("owner_drawing",true)
  self.Owner:SetNWBool("owner_reloading",false)
  --if SERVER then self:SetEvent({"reloading","drawing"},{"false","true"}) end
@@ -441,7 +446,8 @@ if CLIENT then LocalPlayer().ViewModel:SetSubMaterial("") end
 return true
 end
 
-if CLIENT then local m_clAnim = 1 end
+function SWEP:OnDrop()
+end
 
 function SWEP:Think()
 local ifyouworkikillyou = self.Primary.ClipSize - self:Clip1()
@@ -758,8 +764,7 @@ end
 function SWEP:PreDrawViewModel()
 end
 
----[[
-function SWEP:DrawWorldModel()
+--[[function SWEP:DrawWorldModelTranslucent()
 local wm = self.WModel
 if not IsValid(self.Owner) then
 self:DrawModel() return
@@ -775,10 +780,10 @@ if not wm:GetModelScale() != self.Owner:GetModelScale() then
 wm:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
 end
 if bone then
-if not self.WorldModelAng or not self.WorldModelAng.p then
-self.WorldModelAng = Angle(180,0,180)
+if not self.WorldModelAng.p then
+self.WorldModelAng = Angle(0,0,0)
 end
-if not self.WorldModelPos or not self.WorldModelPos.x then
+if not self.WorldModelPos.x then
 self.WorldModelPos = Vector(0,0,0)
 end
 local pos, ang = self.Owner:GetBonePosition(bone)
@@ -793,8 +798,7 @@ else
 self:DrawModel()
 end
 end
-end
---]]
+end]]
 
 local tab = 0
 local attachment = 0
@@ -822,7 +826,7 @@ cam.Start3D2D(LocalPlayer():EyePos() + LocalPlayer():EyeAngles():Forward() * 100
 	surface.DrawTexturedRect(-ScrW(),-ScrH(),ScrW()*2,ScrH()*2)
 cam.End3D2D()
 end
-local Mat1 = Material("pp/toytown-top")
+--local Mat1 = Material("pp/toytown-top")
 --Mat1:SetTexture("$fbtexture", render.GetScreenEffectTexture())
 --[[for i = 0,4 do
 if IsValid(lp.ViewModel) and cl_ironsights == true then
@@ -974,7 +978,7 @@ m_PlayerCam.origin =  ply:GetViewModel():GetAttachment(1).Pos
 m_PlayerCam.angles = ply:GetViewModel():GetAttachment(1).Ang
 else
 m_PlayerCam.angles = Angle(angles.p - BlandVert * 100 - SAng.ViewPunch.p - VMPunch.EffectiveP * .5 ,angles.y + e_BlandHoriz * 1.5 + VMPunch.EffectiveY * .5,angles.r + m_vmRandomize/1.5 + VMPunch.EffectiveR * .5) + Angle(math.sin(CurTime() * (VMAng.SpeedP)) * VMAng.AngleP/12,math.sin(CurTime() * (VMAng.SpeedYaw)) * VMAng.AngleYaw/12,math.sin(CurTime() * (VMAng.SpeedR)) * VMAng.AngleR/12) + Angle(0+SAng.SmoothP,0+SAng.SmoothYaw,0)
-m_PlayerCam.origin = origin
+m_PlayerCam.origin = origin + owner:EyeAngles():Forward() * -(cl_Shake)
 end
 m_PlayerCam.fov = FOV--math.Clamp(90 + SApp,90,100)
 CLVec.VectorX = math.Approach(CLVec.VectorX,CLVec.Target.x,(CLVec.VectorX-CLVec.Target.x)*CLVec.SpeedX*FrameTime())   -- * ply:GetViewModel():GetModelBounds():Length() / 90
@@ -986,13 +990,6 @@ CLAng.AngleR = math.Approach(CLAng.AngleR,CLAng.Target.z,(CLAng.AngleR-CLAng.Tar
 BlandVert = Lerp(3*FrameTime(),BlandVert,cl_Recoil)
 BlandHoriz = Lerp(3*FrameTime(),BlandHoriz,SAng.ViewPunch.y)
 e_BlandHoriz = Lerp(6*FrameTime(),e_BlandHoriz,m_vmRandomize)
-angles:RotateAroundAxis(angles:Right(),CLAng.AngleYaw)
-angles:RotateAroundAxis(angles:Up(),CLAng.AngleP)
-angles:RotateAroundAxis(angles:Forward(),CLAng.AngleR)
-
-origin = origin + CLVec.VectorZ * angles:Up()
-origin = origin + CLVec.VectorY * angles:Forward()
-origin = origin + CLVec.VectorX * angles:Right()
 
 m_PlayerCam.vm_origin = origin
 m_PlayerCam.vm_angles = angles
@@ -1051,7 +1048,7 @@ filter = function(ent) if !ent:GetClass() == ("worldspawn" or "prop_physics") th
 })
 --print("sprinting: "..tostring(cl_sprinting).." | ironsights: "..tostring(cl_ironsights))
 
-CLVec.Target = (self.OriginPos or Vector(0,0,0)) + Vector(m_vmRandomize/3,-m_vmShake/2,-m_vmShake/2) + Vector(0,math.Clamp((CLVec.Trace.HitPos:Distance(CLVec.Trace.StartPos)-24),-5,0),0) + Vector(SwayInput.e_cmdX/200,SwayInput.e_cmdY/200,-SwayInput.e_cmdY/200 + SwayInput.e_cmdX/400) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10) + Vector(0,ply:EyeAngles().p/70,0)
+CLVec.Target = (self.OriginPos or Vector(0,0,0)) + Vector(m_vmRandomize/3,-m_vmShake/2 -cl_Shake,-m_vmShake/2) + Vector(0,math.Clamp((CLVec.Trace.HitPos:Distance(CLVec.Trace.StartPos)-24),-5,0),0) + Vector(SwayInput.e_cmdX/200,SwayInput.e_cmdY/200,-SwayInput.e_cmdY/200 + SwayInput.e_cmdX/400) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10) + Vector(0,ply:EyeAngles().p/70,0)
 CLAng.Target = (self.OriginAng or Vector(0,0,0)) + Vector(m_vmShake*4 + BlandVert * 100 ,m_vmRandomize*3,0) + Vector(SwayInput.e_cmdY/15,SwayInput.e_cmdX/25,SwayInput.e_cmdX/15) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
 
 if owner:KeyDown(IN_ATTACK2) and owner:IsOnGround() and cl_sprinting  == false and owner:GetNWBool("owner_reloading") == false and owner:GetNWBool("owner_drawing") == false and owner:GetActiveWeapon().CanAIDS != false then
@@ -1061,7 +1058,7 @@ owner:EmitSound(table.Random({"cw/sightraise2.wav","cw/sightraise1.wav"}),80,mat
 PunchViewmodel(Angle(0,-1,.5),5)
 end
 cl_ironsights = true
-CLVec.Target = self.IronSightsPos + Vector(0,-m_vmShake*.85,0) + Vector(SwayInput.e_cmdX/800,0,-SwayInput.e_cmdY/800) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10)
+CLVec.Target = self.IronSightsPos + Vector(0,-m_vmShake*.85 -cl_Shake,0) + Vector(SwayInput.e_cmdX/800,0,-SwayInput.e_cmdY/800) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10)
 CLAng.Target = self.IronSightsAng + Vector(m_vmShake + BlandVert * 100,0 + BlandHoriz, 0 +m_vmRandomize*2) + Vector(SwayInput.e_cmdY/60,SwayInput.e_cmdX/100,SwayInput.e_cmdX/40) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
 else 
 if cl_ironsights == true then
