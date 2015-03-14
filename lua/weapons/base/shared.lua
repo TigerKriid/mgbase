@@ -35,13 +35,14 @@ if SERVER then
 	damageInfo:SetDamagePosition(ply:GetPos())
 	damageInfo:SetDamageType(DMG_BULLET)
 	damageInfo:SetDamage(tonumber(damage))
-	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
+ 	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
 	endt:TakeDamage(tonumber(damage),ply,weapon)
+	endt:TakeDamageInfo(damageInfo)	
     end
-    if OnBulletImpact then
+    if OnBulletImpact then	
 	OnBulletImpact(endt,damageInfo)
-	end
-end)
+ 	end
+ end)
 
 end
 if CLIENT then
