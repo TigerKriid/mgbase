@@ -337,7 +337,7 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 end
 local clampfire = 0
 local lastfired = 0
-
+local cl_Snap = 0
 function SWEP:PrimaryAttack()
 local owner = self.Owner
 if self:Clip1() <= 0 then return end
@@ -974,12 +974,13 @@ local self = ply:GetActiveWeapon()
 local owner = ply
 FOV = Lerp(15*FrameTime(),FOV,FOV_t)
 SApp = Lerp(6*FrameTime(),SApp,cl_Shake)
+cl_Snap = Lerp(15*FrameTime(),cl_Snap,0)
 local m_PlayerCam = GAMEMODE:CalcView(ply,origin,angles,fov,vm_origin,vm_angles)
 if cvarweaponcam:GetInt() == 1 then
 m_PlayerCam.origin =  ply:GetViewModel():GetAttachment(1).Pos
 m_PlayerCam.angles = ply:GetViewModel():GetAttachment(1).Ang
 else
-m_PlayerCam.angles = Angle(angles.p - BlandVert * 100 - SAng.ViewPunch.p - VMPunch.EffectiveP * .5 ,angles.y + e_BlandHoriz * 1.5 + VMPunch.EffectiveY * .5,angles.r + m_vmRandomize/1.5 + VMPunch.EffectiveR * .5) + Angle(math.sin(CurTime() * (VMAng.SpeedP)) * VMAng.AngleP/12,math.sin(CurTime() * (VMAng.SpeedYaw)) * VMAng.AngleYaw/12,math.sin(CurTime() * (VMAng.SpeedR)) * VMAng.AngleR/12) + Angle(0+SAng.SmoothP,0+SAng.SmoothYaw,0)
+m_PlayerCam.angles = Angle(angles.p - BlandVert * 100 - SAng.ViewPunch.p - VMPunch.EffectiveP * .5 - cl_Snap * .5,angles.y + e_BlandHoriz * 1.5 + VMPunch.EffectiveY * .5,angles.r - cl_Snap + m_vmRandomize/1.5 + VMPunch.EffectiveR * .5) + Angle(math.sin(CurTime() * (VMAng.SpeedP)) * VMAng.AngleP/12,math.sin(CurTime() * (VMAng.SpeedYaw)) * VMAng.AngleYaw/12,math.sin(CurTime() * (VMAng.SpeedR)) * VMAng.AngleR/12) + Angle(0+SAng.SmoothP,0+SAng.SmoothYaw,0)
 m_PlayerCam.origin = origin + owner:EyeAngles():Forward() * -(cl_Shake)
 end
 m_PlayerCam.fov = FOV--math.Clamp(90 + SApp,90,100)
@@ -1028,6 +1029,7 @@ if cl_lastshoottime < MGTime then
 FakeTime = FakeTime +  (10) * FrameTime()
 SAng.ViewPunch.p = Lerp(6*FrameTime(),SAng.ViewPunch.p,math.sin(FakeTime * 1) * cl_Shake * 3.5 )
 SAng.ViewPunch.y = Lerp(6*FrameTime(),SAng.ViewPunch.y,math.sin(FakeTime * 1) * m_vmRandomize *1 )
+cl_Snap = Lerp(6*FrameTime(),cl_Snap,math.sin(FakeTime) * (cl_Shake * 5))
 cl_firing = false
 if self.SimBone then
 m_BoneShake = Lerp(20*FrameTime(),m_BoneShake,0)
@@ -1040,6 +1042,11 @@ m_BoneShake = 1
 end
 SAng.ViewPunch.p = cl_Shake
 SAng.ViewPunch.y = m_vmRandomize
+if cl_ironsights == false then
+cl_Snap = 1 or self.SnapScale 
+else
+cl_Snap = .5 or self.SnapScale/2 
+end	
 end
 m_vmShake = math.sin(FakeTime * 1.5) * cl_Shake
 MGTime = MGTime +  (10) * FrameTime()
@@ -1051,7 +1058,7 @@ filter = function(ent) if !ent:GetClass() == ("worldspawn" or "prop_physics") th
 --print("sprinting: "..tostring(cl_sprinting).." | ironsights: "..tostring(cl_ironsights))
 
 CLVec.Target = (self.OriginPos or Vector(0,0,0)) + Vector(m_vmRandomize/3,-m_vmShake/2 -cl_Shake,-m_vmShake/2) + Vector(0,math.Clamp((CLVec.Trace.HitPos:Distance(CLVec.Trace.StartPos)-24),-5,0),0) + Vector(SwayInput.e_cmdX/200,SwayInput.e_cmdY/200,-SwayInput.e_cmdY/200 + SwayInput.e_cmdX/400) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10) + Vector(0,ply:EyeAngles().p/70,0)
-CLAng.Target = (self.OriginAng or Vector(0,0,0)) + Vector(m_vmShake*4 + BlandVert * 100 ,m_vmRandomize*3,0) + Vector(SwayInput.e_cmdY/15,SwayInput.e_cmdX/25,SwayInput.e_cmdX/15) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
+CLAng.Target = (self.OriginAng or Vector(0,0,0)) + Vector(m_vmShake*4 + BlandVert * 100 - cl_Snap * .5 ,m_vmRandomize*3,0 - cl_Snap) + Vector(SwayInput.e_cmdY/15,SwayInput.e_cmdX/25,SwayInput.e_cmdX/15) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
 
 if owner:KeyDown(IN_ATTACK2) and owner:IsOnGround() and cl_sprinting  == false and owner:GetNWBool("owner_reloading") == false and owner:GetNWBool("owner_drawing") == false and owner:GetActiveWeapon().CanAIDS != false then
 if cl_ironsights == false then 
@@ -1060,8 +1067,8 @@ owner:EmitSound(table.Random({"cw/sightraise2.wav","cw/sightraise1.wav"}),80,mat
 PunchViewmodel(Angle(0,-1,.5),5)
 end
 cl_ironsights = true
-CLVec.Target = self.IronSightsPos + Vector(0,-m_vmShake*.85 -cl_Shake,0) + Vector(SwayInput.e_cmdX/800,0,-SwayInput.e_cmdY/800) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10)
-CLAng.Target = self.IronSightsAng + Vector(m_vmShake + BlandVert * 100,0 + BlandHoriz, 0 +m_vmRandomize*2) + Vector(SwayInput.e_cmdY/60,SwayInput.e_cmdX/100,SwayInput.e_cmdX/40) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
+CLVec.Target = self.IronSightsPos + Vector(0,-m_vmShake*.85 -cl_Shake ,0) + Vector(SwayInput.e_cmdX/800,0,-SwayInput.e_cmdY/800) + Vector(VMPunch.EffectiveY/10,0,-VMPunch.EffectiveP/10 + VMPunch.EffectiveR/10)
+CLAng.Target = self.IronSightsAng + Vector(m_vmShake + BlandVert * 100 + cl_Snap * .5,0 + BlandHoriz, 0 +m_vmRandomize*2- cl_Snap) + Vector(SwayInput.e_cmdY/60,SwayInput.e_cmdX/100,SwayInput.e_cmdX/40) + Vector(VMPunch.EffectiveP,VMPunch.EffectiveY,VMPunch.EffectiveR)
 else 
 if cl_ironsights == true then
 cl_ironsights = false
