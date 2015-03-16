@@ -23,7 +23,7 @@ if LocalPlayer():KeyDown(IN_ATTACK) then
 	if CurTime() >= MousePause then
 	MousePause = CurTime() + .5
 	PolyTable_Index = PolyTable_Index + 1
-	PolyTable[PolyTable_Index] = {x = math.Truncate(ScrW() /gui.MouseX(),3),y = math.Truncate(ScrH() /gui.MouseY(),3)}
+	PolyTable[PolyTable_Index] = {x = "ScrW() / "..math.Truncate(ScrW() /gui.MouseX(),3),y = "ScrH() / "..math.Truncate(ScrH() /gui.MouseY(),3)}
 	LocalPlayer():EmitSound("items/medshot4.wav")
 end
 end
@@ -31,10 +31,10 @@ end
 for i, v in pairs(PolyTable) do
 	surface.SetDrawColor(255,0,0,255)
 	surface.SetTextColor(255,0,0,255)
-surface.DrawCircle(ScrW() / v.x,ScrH() / v.y,math.sin(CurTime() * 20 - i) * 2 + i * .5,Color(255,0,0,255))
+surface.DrawCircle(ScrW() / tonumber(string.Replace(v.x,"ScrW() / ","")),ScrH() / tonumber(string.Replace(v.y,"ScrH() / ","")),math.sin(CurTime() * 20 - i) * 2 + i * .5,Color(255,0,0,255))
 if #PolyTable > 1 then
-surface.DrawText(i,"Default",ScrW() / v.x,ScrH() / v.y)
-surface.DrawLine(ScrW() / v.x,ScrH() / v.y,ScrW() / table.FindNext(PolyTable,v).x,ScrH() / table.FindNext(PolyTable,v).y)
+surface.DrawText(i,"Default",ScrW() / tonumber(string.Replace(v.x,"ScrW() /","")),ScrH() / tonumber(string.Replace(v.y,"ScrH() /","")))
+surface.DrawLine(ScrW() / tonumber(string.Replace(v.x,"ScrW() /","")),ScrH() / tonumber(string.Replace(v.y,"ScrH() /","")),ScrW() / tonumber(string.Replace(table.FindNext(PolyTable,v).x,"ScrW() / ","")),ScrH() / tonumber(string.Replace(table.FindNext(PolyTable,v).y,"ScrH() / ","")))
 end
 end
 end
