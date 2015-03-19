@@ -9,7 +9,7 @@ local cvarblurs = CreateClientConVar("basedebug_enableblurs","1",true,false)
 local cvarhud = CreateClientConVar("basedebug_enablehud","1",true,false)
 local cvarcrosshair = CreateClientConVar("basedebug_enablecrosshair","1",true,false)
 local cvardmg = CreateConVar("basedebug_printhits","0",{FCVAR_REPLICATED})
-
+local cvarphysx = CreateClientConVar("basedebug_physx","1",true,false)
 if SERVER then
 	local target = ""
 	local damage = ""
@@ -322,6 +322,27 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	net.SendToServer()
 	if cvardmg:GetInt() == 1 and tr.Entity != Entity(0) then
 	print(tr.e_dmg)
+	end
+		if cvarphysx:GetInt() == 1 and Debris[tostring(tr.MatType)] != nil then
+		if tr.HitPos:Distance(self.Owner:GetPos()) <= 1000 then	
+		local ent = ClientsideModel(table.Random(Debris[tostring(tr.MatType)].mdl), RENDERGROUP_BOTH)
+		ent:SetPos(tr.HitPos)
+		ent:SetModelScale(math.Rand(ent:GetModelScale() * table.GetFirstValue(Debris[tostring(tr.MatType)].size),ent:GetModelScale() * table.GetLastValue(Debris[tostring(tr.MatType)].size)),0)
+		ent:PhysicsInitBox(ent:GetModelBounds())
+		ent:SetAngles(self.Owner:EyeAngles())
+		ent:SetMoveType(MOVETYPE_VPHYSICS) 
+		ent:SetSolid(SOLID_VPHYSICS) 
+		ent:SetCollisionGroup(COLLISION_GROUP_DEBRIS)
+		local phys = ent:GetPhysicsObject()
+		phys:SetMaterial("gmod_silent")
+		phys:SetMass(10)
+		phys:SetVelocity(math.random(150,250) * (tr.HitNormal))
+		phys:AddAngleVelocity(Vector(0,0,0) * math.random(2,5))
+		timer.Simple(4,function() ent:Remove(ent) end)
+	end
+	if Debris[tostring(tr.MatType)].effect != nil then
+	ParticleEffect(Debris[tostring(tr.MatType)].effect,tr.HitPos,tr.HitNormal:Angle(),nil)
+	end
 	end
 	end
 	end
