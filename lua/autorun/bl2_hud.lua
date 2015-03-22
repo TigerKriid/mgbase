@@ -434,9 +434,11 @@ end )
 local received = {}
 local tablenum = 0
 
-hook.Add("PostDrawOpaqueRenderables","hllyshit",function()
+hook.Remove("PostDrawOpaqueRenderables","hllyshit")
+hook.Remove("PreDrawOpaqueRenderables","hllyshit")
+hook.Add("PostDrawTranslucentRenderables","hllyshit",function()
 	for i,w in pairs(ents.GetAll()) do
-if w:IsWeapon() and not IsValid(w:GetOwner()) and LocalPlayer():EyePos():Distance(w:GetPos()) < 501 or w:GetClass() == "ent_shield" then
+if IsValid(w) and w:IsWeapon() and not IsValid(w:GetOwner()) and LocalPlayer():EyePos():Distance(w:GetPos()) < 501 or w:GetClass() == "ent_shield" then
 local Weapon = w
 local Rarity = Weapon:GetNWInt("Rarity",0)
 local DrawColor = Color(255,255,255,150)
@@ -462,7 +464,7 @@ end
 for i = 1,11 do
 if i == 1 then
 cam.Start3D2D(w:GetPos()+w:OBBCenter(),Angle(0,EyeAngles().y + 90,270),.5)
-
+--draw.SimpleText(w,"BL2Font_3",0, 55,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 surface.SetDrawColor(DrawColor.r,DrawColor.g,DrawColor.b,155) 
 surface.SetMaterial(Material("sprites/mechshield"))
 surface.DrawTexturedRectRotated(1.5,2 + i * 5,8,8,CurTime() * 60)
