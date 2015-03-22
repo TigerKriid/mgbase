@@ -421,7 +421,15 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 				draw.SimpleText("ClipSize:"..trace.Entity.Primary.ClipSize,"LevelText",W*.56, H*.48,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Delay:"..math.Round(trace.Entity.Primary.Delay,3),"LevelText",W*.56, H*.5,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Rarity:"..Rarity,"LevelText",W*.56, H*.52,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				if trace.Entity.Effects then
+					local i = 1
+					for k,v in pairs(trace.Entity.Effects) do
+						draw.SimpleText(k..":"..v,"LevelText",W*.56, H*(.52+(0.02*i)),DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+						i = i + 1
+					end
+				end
 			end
+
 		--	Ents = {trace.Entity}
 		end
 		--if trace.Entity:IsWeapon() and trace.Entity:Clip1() > 0 then

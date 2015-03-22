@@ -148,6 +148,7 @@ end
  if not pl.PerkEntity.IsVictim then
  pl.PerkEntity:SetCondition(67)
  pl.PerkEntity.IsVictim = true
+ ApplyEffect( pl.PerkEntity,pl,pl,"slag",10,0)
  end
  if not pl.PerkEntity.LoopSound then
  pl.PerkEntity.LoopSound = CreateSound(pl.PerkEntity,"vfx/fizzler_vortex_lp_01.wav")
