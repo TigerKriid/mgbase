@@ -63,14 +63,24 @@ p.Sentry = nil
 p.LastPerkUse = CurTime()
 end
 
-concommand.Add("bl2_class",function(ply,cmd,args)
-ply.Class = args[1]
+function BL2PerkSetUp(p)
+p.InPerk = false 
+p.PerkEntity = nil 
+p.PerkTime = 3 
+p.Sentry = nil
+p.LastPerkUse = CurTime()
+end
+
+hook.Add("PlayerSpawn","BL2PerkSetUp",BL2PerkSetUp)
+
+concommand.Add("bl2_BL2Class",function(ply,cmd,args)
+ply.BL2Class = args[1]
 end)
 
 concommand.Add("bl2_perk",function(ply)
 if ply.InPerk == true then return end
-if ply.Class == nil then return end
-if ply.Class == "siren" then
+if ply.BL2Class == nil then return end
+if ply.BL2Class == "siren" then
 if ply:GetEyeTrace().Entity:IsNPC() and ply.PerkTime >= 3 then
 ply.LastPerkUse = CurTime()
 ply.InPerk = true
@@ -91,7 +101,7 @@ ply.PerkEntity.pos = nil
 ply.PerkEntity.lerp = nil
 end
 end
-elseif ply.Class == "commando" then
+elseif ply.BL2Class == "commando" then
 if ply.PerkTime >= 3 then
 ply.LastPerkUse = CurTime()
 ply:EmitSound("npc/sphere/sphere_blips_md_"..math.random(10,23)..".wav")
@@ -119,22 +129,22 @@ hook.Add("Think","BL2_PERK_MANAGER",function()
 for i2,pl in pairs(player.GetAll()) do
 --------------------
 if pl.InPerk == false then
- if pl.Class == "siren" then
+ if pl.BL2Class == "siren" then
  pl.PerkTime = math.Clamp(pl.PerkTime + 0.005,0,3)
- elseif pl.Class == "commando" then
+ elseif pl.BL2Class == "commando" then
  pl.PerkTime = math.Clamp(pl.PerkTime + 0.0025,0,3)
  end
 elseif pl.InPerk == true then
- if pl.Class == "siren" then
+ if pl.BL2Class == "siren" then
  pl.PerkTime = pl.PerkTime - .01
-elseif pl.Class == "commando" then
+elseif pl.BL2Class == "commando" then
 pl.PerkTime = 0
 end
 end
 
 ------------------
  if pl.InPerk == true then
- if pl.Class == "siren" and IsValid(pl.PerkEntity) then
+ if pl.BL2Class == "siren" and IsValid(pl.PerkEntity) then
  if not pl.PerkEntity.IsVictim then
  pl.PerkEntity:SetCondition(67)
  pl.PerkEntity.IsVictim = true
@@ -158,7 +168,7 @@ if pl.PerkTime <= 0 or !IsValid(pl.PerkEntity) or pl.PerkEntity:Health() <= 0 th
  end
 end
 end
-if pl.Class == "commando" and IsValid(pl.Sentry) then
+if pl.BL2Class == "commando" and IsValid(pl.Sentry) then
 if IsValid(pl.Sentry.grenade) then
 pl.Sentry.trace = util.TraceLine({
 	start = pl.Sentry.grenade:GetPos(),
@@ -170,11 +180,19 @@ pl.Sentry.Enemies = {}
 end
 
 for i2323,npc33 in pairs(ents.FindByClass("npc*")) do
-if npc33:GetPos():Distance(pl.Sentry:GetPos()) < 3000 and npc33:Disposition(pl) == D_HT and npc33:IsLineOfSightClear(pl.Sentry:GetPos()) then pl.Sentry.Enemies[i2323] = {enemy = npc33, index = i2323, distance = math.Round(npc33:GetPos():Distance(pl.Sentry:GetPos()))} npc33:AddRelationship("npc_bullseye D_HT 99")end
+if npc33.Disposition and npc33:Disposition(pl) == D_HT and npc33:GetPos():Distance(pl.Sentry:GetPos()) < 3000 and npc33:IsLineOfSightClear(pl.Sentry:GetPos()) then 
+	pl.Sentry.Enemies[i2323] = {enemy = npc33, index = i2323, distance = math.Round(npc33:GetPos():Distance(pl.Sentry:GetPos()))} 
+	npc33:AddRelationship("npc_bullseye D_HT 99")
 end
-if CurTime() >= pl.LastPerkUse + 3 then
+--if not npc33.Disposition then
+	--print(npc33)
+--end
+end
+if CurTime() >= pl.LastPerkUse + 1.5 then
 pl.Sentry:SetModel("models/npcs/turret/turret.mdl")
 pl.Sentry:SetPos(pl.Sentry.trace.HitPos)
+pl.Sentry:SetSkin(1)
+BL2.SetLevel(pl.Sentry,BL2.GetLevel(pl))
 pl.Sentry:SetAngles(Angle(0,0,0))
 pl.Sentry:Spawn()
 pl.Sentry:SetHealth(1)
@@ -198,16 +216,29 @@ end
 if pl.Sentry.ready == true then
 pl.Sentry.LifeTime = pl.Sentry.LifeTime - 0.05
 if #pl.Sentry.Enemies > 0 and (!IsValid(pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy) or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:Health() <= 0 or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:IsLineOfSightClear(pl.Sentry:GetPos()) == false)  then print(";D") table.remove(pl.Sentry.Enemies,pl.Sentry.Enemies[#pl.Sentry.Enemies].index) end --pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy = pl.Sentry.Enemies[math.Clamp(#pl.Sentry.Enemies - 1,1,#pl.Sentry.Enemies)].enemy end
-if #pl.Sentry.Enemies > 0 then
-if pl.Sentry.ROF < CurTime() then
-pl.Sentry:ResetSequence("fire")
-pl.Sentry:EmitSound("npc/turret/turret_fire_4x_01.wav",100,math.random(90,120))
-pl.Sentry.SetFoe(pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy,5)
-pl.Sentry.ROF = CurTime() + 0.15
-end
-pl.Sentry:PointAtEntity(pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy)
-end
-end
+	
+	if table.Count(pl.Sentry.Enemies) > 0 then
+		local foe = nil
+		for k,v in pairs(pl.Sentry.Enemies) do
+			if IsValid(v.enemy) and v.enemy:Health() > 0 and v.enemy:IsLineOfSightClear(pl.Sentry:GetPos()) then
+				foe = v
+				break
+			end
+			
+		end
+		if foe then
+			foe = foe.enemy
+			if pl.Sentry.ROF < CurTime() then
+
+				pl.Sentry:ResetSequence("fire")
+				pl.Sentry:EmitSound("npc/turret/turret_fire_4x_01.wav",100,math.random(90,120))
+				pl.Sentry.SetFoe(foe,5)
+				pl.Sentry.ROF = CurTime() + 0.15
+			end
+			pl.Sentry:PointAtEntity(foe)
+			end
+		end
+	end
 end
 if IsValid(pl.Sentry) then
 if pl.Sentry.LifeTime <= 0 then 
