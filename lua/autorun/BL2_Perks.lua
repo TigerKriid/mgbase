@@ -290,7 +290,7 @@ if IsValid(pl.Sentry) then
 		pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
 
 	end
-elseif pl.InPerk then
+elseif pl.InPerk and pl.BL2Class == "commando" then
 	--pl.PerkTime = 0
 	pl.InPerk = false
 	--pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
