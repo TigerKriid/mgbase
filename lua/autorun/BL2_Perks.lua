@@ -278,18 +278,24 @@ if #pl.Sentry.Enemies > 0 and (!IsValid(pl.Sentry.Enemies[#pl.Sentry.Enemies].en
 	end
 end
 if IsValid(pl.Sentry) then
-if pl.Sentry.LifeTime <= 0 or !pl:Alive() then 
-if IsValid(pl.Sentry.grenade) then pl.Sentry.grenade:Remove()end
-pl.Sentry.ready = false
-pl.PerkTime = 0
-ParticleEffect("door_explosion_core",pl.Sentry:GetPos(),Angle(0,0,270))
-pl.Sentry:EmitSound("container/containercrash01.wav")
-pl.Sentry:Remove()
-pl.Sentry = nil
-pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
+	if pl.Sentry.LifeTime <= 0 or !pl:Alive() then 
+		if IsValid(pl.Sentry.grenade) then pl.Sentry.grenade:Remove()end
+		pl.Sentry.ready = false
+		pl.PerkTime = 0
+		ParticleEffect("door_explosion_core",pl.Sentry:GetPos(),Angle(0,0,270))
+		pl.Sentry:EmitSound("container/containercrash01.wav")
+		pl.Sentry:Remove()
+		pl.Sentry = nil
+		pl.InPerk = false
+		pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
 
+	end
+elseif pl.InPerk then
+	--pl.PerkTime = 0
+	pl.InPerk = false
+	--pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
 end
-end
+
 end
 end)
 end
