@@ -40,17 +40,24 @@ end
 
 
 -------------------------------------
-
-if SERVER then
+if CLIENT and SERVER then
 game.AddParticles("particles/aurora_sphere2.pcf")
 game.AddParticles("particles/hunter_shield_impact.pcf")
 game.AddParticles("particles/door_explosion.pcf")
 game.AddParticles("particles/grenade_fx.pcf")
+game.AddParticles("particles/electrical_fx.pcf")
+game.AddParticles("particles/striderbuster.pcf")
 PrecacheParticleSystem("aurora_shockwave")
 PrecacheParticleSystem("hunter_shield_impactglow")
 PrecacheParticleSystem("door_explosion_core")
 PrecacheParticleSystem("grenade_explosion_01h")
 PrecacheParticleSystem("grenade_explosion_01e")
+PrecacheParticleSystem("st_elmos_fire_cp0")
+PrecacheParticleSystem("striderbuster_shotdown_core_flash")
+PrecacheParticleSystem("striderbuster_shotdown_explosion_trail")
+end
+if SERVER then
+util.AddNetworkString("BL2_Orbs")
 COND_NPC_UNFREEZE = 68
 COND_NPC_FREEZE = 67
 local GlobalNPCTable = {}
@@ -75,6 +82,8 @@ hook.Add("PlayerSpawn","BL2PerkSetUp",BL2PerkSetUp)
 
 concommand.Add("bl2_BL2Class",function(ply,cmd,args)
 ply.BL2Class = args[1]
+ply:Spawn()
+print(ply.BL2Class)
 end)
 
 concommand.Add("bl2_perk",function(ply)
@@ -87,6 +96,7 @@ ply.InPerk = true
 ply.PerkEntity = ply:GetEyeTrace().Entity 
 ply.PerkEntity.pos = ply.PerkEntity:GetPos() + Vector(0,0,50)
 ply.PerkEntity.lerp = ply.PerkEntity:GetPos()
+ply.PerkEntity.EffectInterval = 0
 ParticleEffect("aurora_shockwave",ply.PerkEntity:GetPos(),Angle(0,0,0))
 ply:EmitSound("vfx/fizzler_shutdown_01.wav")
 else
@@ -144,7 +154,8 @@ end
 
 ------------------
  if pl.InPerk == true then
- if pl.BL2Class == "siren" and IsValid(pl.PerkEntity) then
+ if pl.BL2Class == "siren" then
+ if IsValid(pl.PerkEntity) then
  if not pl.PerkEntity.IsVictim then
  pl.PerkEntity:SetCondition(67)
  pl.PerkEntity.IsVictim = true
@@ -158,8 +169,25 @@ end
  pl.PerkEntity:StopMoving()
  pl.PerkEntity.lerp = LerpVector(.1,pl.PerkEntity.lerp,pl.PerkEntity.pos)
  pl.PerkEntity:SetPos(pl.PerkEntity.lerp)
+ if CurTime() >= pl.PerkEntity.EffectInterval then
+ pl.PerkEntity.EffectInterval = CurTime() + .1
+ ParticleEffect("striderbuster_shotdown_core_flash",pl.PerkEntity:GetPos() + Vector(0,0,20),Angle(0,0,0))
+ ParticleEffect("striderbuster_shotdown_explosion_trail",pl.PerkEntity:GetPos() + Vector(0,0,20),Angle(0,0,0))
  end
-if pl.PerkTime <= 0 or !IsValid(pl.PerkEntity) or pl.PerkEntity:Health() <= 0 then
+ end
+ end
+
+if (pl.PerkTime <= 0 or !IsValid(pl.PerkEntity) or pl.PerkEntity:Health() <= 0) and pl.BL2Class == "siren" then
+if pl.PerkEntity:Health() <= 0 then 
+net.Start("BL2_Orbs")
+			   --V
+net.WriteString("1") ---ORBS!
+net.WriteVector(pl.PerkEntity:GetPos())
+net.Broadcast()
+for i, heals in pairs(player.GetAll()) do 								--V
+heals:SetHealth(math.Clamp(heals:Health() + heals:GetMaxHealth() * (.15 * 1),0,heals:GetMaxHealth())) ---ORBS!
+end
+end
  pl.InPerk = false
  if IsValid(pl.PerkEntity) then
   pl.PerkEntity:SetCondition(68)
@@ -169,6 +197,7 @@ if pl.PerkTime <= 0 or !IsValid(pl.PerkEntity) or pl.PerkEntity:Health() <= 0 th
  end
 end
 end
+---------------------------------||
 if pl.BL2Class == "commando" and IsValid(pl.Sentry) then
 if IsValid(pl.Sentry.grenade) then
 pl.Sentry.trace = util.TraceLine({
@@ -181,7 +210,7 @@ pl.Sentry.Enemies = {}
 end
 
 for i2323,npc33 in pairs(ents.FindByClass("npc*")) do
-if npc33.Disposition and npc33:Disposition(pl) == D_HT and npc33:GetPos():Distance(pl.Sentry:GetPos()) < 3000 and npc33:IsLineOfSightClear(pl.Sentry:GetPos()) then 
+if npc33.Disposition and npc33:Disposition(pl) == D_HT and npc33:GetPos():Distance(pl.Sentry:GetPos()) < 3000 and npc33:IsLineOfSightClear(pl.Sentry:GetAttachment(1).Pos) then 
 	pl.Sentry.Enemies[i2323] = {enemy = npc33, index = i2323, distance = math.Round(npc33:GetPos():Distance(pl.Sentry:GetPos()))} 
 	npc33:AddRelationship("npc_bullseye D_HT 99")
 end
@@ -210,18 +239,25 @@ end
 pl.Sentry:SetSequence("fire")
 end
 pl.Sentry.SetFoe = function(enemy,damge)
-if enemy:IsLineOfSightClear(pl.Sentry:GetPos()) then
+if enemy:IsLineOfSightClear(pl.Sentry:GetAttachment(1).Pos) then
 enemy:TakeDamage(damge,pl,pl.Sentry)
 else return end
 end
 if pl.Sentry.ready == true then
 pl.Sentry.LifeTime = pl.Sentry.LifeTime - 0.05
-if #pl.Sentry.Enemies > 0 and (!IsValid(pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy) or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:Health() <= 0 or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:IsLineOfSightClear(pl.Sentry:GetPos()) == false)  then print(";D") table.remove(pl.Sentry.Enemies,pl.Sentry.Enemies[#pl.Sentry.Enemies].index) end --pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy = pl.Sentry.Enemies[math.Clamp(#pl.Sentry.Enemies - 1,1,#pl.Sentry.Enemies)].enemy end
+--[[pl.Sentry.attachmenttrace = util.TraceLine({
+ start = pl.Sentry:GetAttachment(1).Pos,
+ endpos = pl.Sentry:GetAttachment(1).Pos + pl.Sentry:GetAttachment(1).Ang:Forward() * 1500,
+})
+render.SetMaterial(Material("red"))
+render.DrawBeam(pl.Sentry.attachmenttrace.StartPos,pl.Sentry.attachmenttrace.HitPos,.1,0,10,Color(255,0,0,255))]]
+
+if #pl.Sentry.Enemies > 0 and (!IsValid(pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy) or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:Health() <= 0 or pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy:IsLineOfSightClear(pl.Sentry:GetAttachment(1).Pos) == false)  then print(";D") table.remove(pl.Sentry.Enemies,pl.Sentry.Enemies[#pl.Sentry.Enemies].index) end --pl.Sentry.Enemies[#pl.Sentry.Enemies].enemy = pl.Sentry.Enemies[math.Clamp(#pl.Sentry.Enemies - 1,1,#pl.Sentry.Enemies)].enemy end
 	
 	if table.Count(pl.Sentry.Enemies) > 0 then
 		local foe = nil
 		for k,v in pairs(pl.Sentry.Enemies) do
-			if IsValid(v.enemy) and v.enemy:Health() > 0 and v.enemy:IsLineOfSightClear(pl.Sentry:GetPos()) then
+			if IsValid(v.enemy) and v.enemy:Health() > 0 and v.enemy:IsLineOfSightClear(pl.Sentry:GetAttachment(1).Pos) then
 				foe = v
 				break
 			end
@@ -242,7 +278,8 @@ if #pl.Sentry.Enemies > 0 and (!IsValid(pl.Sentry.Enemies[#pl.Sentry.Enemies].en
 	end
 end
 if IsValid(pl.Sentry) then
-if pl.Sentry.LifeTime <= 0 then 
+if pl.Sentry.LifeTime <= 0 or !pl:Alive() then 
+if IsValid(pl.Sentry.grenade) then pl.Sentry.grenade:Remove()
 pl.Sentry.ready = false
 pl.PerkTime = 0
 ParticleEffect("door_explosion_core",pl.Sentry:GetPos(),Angle(0,0,270))
@@ -253,5 +290,38 @@ pl.PerkTime = math.Clamp(pl.PerkTime + 0.002,0,3)
 end
 end
 end
+end
 end)
+end
+
+
+if CLIENT then
+local orbs = {}
+	net.Receive("BL2_Orbs",function(len,ply)
+	local perkorbs = tonumber(net.ReadString())
+	local position = net.ReadVector()
+	for i,p in pairs(player.GetAll()) do
+	orbs[i] = {pos = position,index = i,number = perkorbs}
+	end
+	PrintTable(orbs)
+	end)
+
+	hook.Add("PostDrawTranslucentRenderables","BL2CAMSHIT",function()
+	for r,c in pairs(orbs) do
+	c.destination = Entity(c.index):EyePos() + Vector(0,0,-10)
+	c.pos = LerpVector(1*FrameTime(),c.pos,c.destination)
+	if not c.fxinterval then c.fxinterval = 0 end
+	if c.pos:Distance(c.destination) > 20 then
+	for n = 1,c.number do
+	cam.Start3D2D(c.pos + Angle(0,EyeAngles().y + 90,270):Forward() * math.sin(CurTime() * (6 - n)) * (4 + n) + Angle(0,EyeAngles().y + 90,270):Right() * math.sin(CurTime() * (3)) * (4 - n),Angle(0,EyeAngles().y + 90,270),.1 + (n/10))
+	draw.SimpleTextOutlined("+","BL2Font_3",0,0,Color(255,0,0,math.Clamp(0 + c.pos:Distance(c.destination),0,255)),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER,1,Color(0,0,0,math.Clamp(0 + c.pos:Distance(c.destination),0,255)))
+	cam.End3D2D()
+	end
+	else
+	Entity(c.index):EmitSound("player/object_use_0"..math.random(1,2)..".wav",35,100)
+	ParticleEffect("st_elmos_fire_cp0",c.pos + Angle(0,EyeAngles().y + 90,270):Forward() * math.sin(CurTime() * 6) * 4,Angle(0,0,0))
+	table.remove(orbs,r)
+	end
+	end
+	end)
 end
