@@ -129,67 +129,7 @@ hook.Add( "HUDPaint", "BL2_Render3", function()
 	{x	=	ScrW() / 4.186,y	=	ScrH() / 1.057},
 	{x	=	ScrW() / 4.705,y	=	ScrH() / 1.119},
 	})]]
-	----XPbar
-	surface.SetDrawColor(0,0,0,255)
-	surface.DrawPoly({
-		{x	=	ScrW() / 1.451 + move,y	=	ScrH() / 1.027 + move},
-		{x	=	ScrW() / 3.512 + move,y	=	ScrH() / 1.027 + move},
-		{x	=	ScrW() / 3.404 + move ,y	=	ScrH() / 1.05 + move},
-		{x	=	ScrW() / 1.448 + move ,y	=	ScrH() / 1.055 + move},
-	})
-	surface.SetDrawColor(0,155,255,255)
-	surface.DrawRect(ScrW() * .296 + move,ScrH() * .956 + move,ScreenScale(250),ScreenScale(5))
-	---------
-	----hp
-	surface.SetDrawColor(0,155,255,155)
-	surface.DrawPoly({
-		{x	=	ScrW() / 4.485 + move,y	=	ScrH() / 1.075 + move},
-		{x	=	ScrW() / 4.675 + move,y	=	ScrH() / 1.092 + move},
-		{x	=	ScrW() / 14.993 + move,y	=	ScrH() / 1.083 + move},
-		{x	=	ScrW() / 13.984 + move ,y	=	ScrH() / 1.053 + move},
-	})
-	surface.SetDrawColor(0,0,0,255)
-	surface.DrawPoly({
-	{x	=	ScrW() / 13.09 + move,y	=	ScrH() / 1.055 + move},
-	{x	=	ScrW() / 13.09 + move,y	=	ScrH() / 1.09 + move},
-	{x	=	ScrW() / 4.615 + move,y	=	ScrH() / 1.097 + move},
-	{x	=	ScrW() / 4.375 + move,y	=	ScrH() / 1.07 + move},
-	})
-	local hpstate = hp/LocalPlayer():GetMaxHealth()
-	surface.SetDrawColor(255,0,0,255)
-	local pos = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.7)
-	local pos2 = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.5)
-	surface.DrawPoly({
-		{x	=	ScrW() / 12.631 + move,y	=	ScrH() / 1.061 + move},
-		{x	=	ScrW() / 12.631 + move,y	=	ScrH() / 1.086 + move},
-		{x	=	pos + move ,y	=	ScrH() / 1.093 + move},
-		{x	=	pos2 + move ,y	=	ScrH() / 1.075 + move},
-	})
 
-	------------
-	------armor
-	surface.SetDrawColor(0,155,255,155)
-	surface.DrawPoly({
-		{x	=	ScrW() / 4.585 + move,y	=	ScrH() / 1.065 + move},
-		{x	=	ScrW() / 14.4 + move,y	=	ScrH() / 1.047 + move},
-		{x	=	ScrW() / 14.4 + move ,y	=	ScrH() / 1.02 + move},
-		{x	=	ScrW() / 4.458 + move,y	=	ScrH() / 1.044 + move},
-	})
-	surface.SetDrawColor(0,0,0,255)
-	surface.DrawPoly({
-	{x	=	ScrW() / 13.02 + move,y	=	ScrH() / 1.025 + move},
-	{x	=	ScrW() / 13.09 + move,y	=	ScrH() / 1.051 + move},
-	{x	=	ScrW() / 4.55 + move,y	=	ScrH() / 1.067 + move},
-	{x	=	ScrW() / 4.375 + move,y	=	ScrH() / 1.04 + move},
-	})
-
-	surface.SetDrawColor(0,115,255,255)
-	surface.DrawPoly({
-		{x	=	ScrW() / 12.631 + move,y	=	ScrH() / 1.031 + move},
-		{x	=	ScrW() / 12.431 + move,y	=	ScrH() / 1.047 + move},
-		{x	=	ScrW() / 4.58 + move ,y	=	ScrH() / 1.061 + move},
-		{x	=	ScrW() / 4.5 + move ,y	=	ScrH() / 1.045 + move},
-	})
 	----AMMO
 
 surface.SetDrawColor(0,155,255,155)
@@ -213,8 +153,8 @@ if IsValid(LocalPlayer():GetActiveWeapon()) and LocalPlayer():GetActiveWeapon().
 end
 local ammopos = Lerp(ammostate,ScrW() / 1.079,ScrW() / 1.319)
 local ammopos2 = Lerp(ammostate,ScrW() / 1.083,ScrW() / 1.313)
-local ammopos3 = Lerp(ammostate,ScrH() / 1.065,ScrH() / 1.052)
-local ammopos4 = Lerp(ammostate,ScrH() / 1.045,ScrH() / 1.076)
+local ammopos3 = Lerp(ammostate,ScrH() / 1.045, ScrH() / 1.052)
+local ammopos4 = Lerp(ammostate,ScrH() / 1.065, ScrH() / 1.076)
 surface.SetDrawColor(60,100,255,255)
 surface.DrawPoly({
 {x	=	ammopos+ move,y	=	ammopos3+ move},
@@ -270,13 +210,21 @@ surface.DrawPoly({
 surface.SetDrawColor(255,0,0,255)
 local pos = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.7)
 local pos2 = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.5)
+local pos3 = Lerp(hpstate, ScrH() / 1.086,ScrH() / 1.093)
+local pos4 = Lerp(hpstate, ScrH() / 1.061,ScrH() / 1.075)
 surface.DrawPoly({
 {x=ScrW() / 12.631 + move,y=ScrH() / 1.061 + move},
 {x=ScrW() / 12.631 + move,y=ScrH() / 1.086 + move},
-{x= pos + move ,y=ScrH() / 1.093 + move},
-{x= pos2 + move ,y=ScrH() / 1.075 + move},
+{x= pos + move ,y= pos3 + move},
+{x= pos2 + move ,y=pos4 + move},
 })
-
+	surface.SetDrawColor(0,155,255,155)
+	surface.DrawPoly({
+		{x	=	ScrW() / 4.585 + move,y	=	ScrH() / 1.065 + move},
+		{x	=	ScrW() / 14.4 + move,y	=	ScrH() / 1.047 + move},
+		{x	=	ScrW() / 14.4 + move ,y	=	ScrH() / 1.02 + move},
+		{x	=	ScrW() / 4.458 + move,y	=	ScrH() / 1.044 + move},
+	})
 ------------
 ------armor
 surface.SetDrawColor(0,155,255,155)
@@ -293,13 +241,16 @@ surface.DrawPoly({
 {x	=	ScrW() / 4.55+ move,y	=	ScrH() / 1.067+ move},
 {x	=	ScrW() / 4.375+ move,y	=	ScrH() / 1.04+ move},
 })
-
+local armorstate = Armor/LocalPlayer():GetNWInt("Shield-MaxShield")
+surface.SetDrawColor(255,0,0,255)
+local pos = Lerp(armorstate, ScrW() / 12.631,ScrW() / 4.58)
+local pos2 = Lerp(armorstate, ScrW() / 12.431,ScrW() / 4.5)
 surface.SetDrawColor(0,115,255,255)
 surface.DrawPoly({
 	{x	=	ScrW() / 12.631+ move,y	=	ScrH() / 1.031+ move},
 	{x	=	ScrW() / 12.431+ move,y	=	ScrH() / 1.047+ move},
-	{x	=	ScrW() / 4.58+ move ,y	=	ScrH() / 1.061+ move},
-	{x	=	ScrW() / 4.5+ move ,y	=	ScrH() / 1.045+ move},
+	{x	=	pos + move ,y	=	ScrH() / 1.061+ move},
+	{x	=	pos2 + move ,y	=	ScrH() / 1.045+ move},
 })
 --------------------
 draw.SimpleTextOutlined("+","BL2Font_3",ScrW() * .075+ move,ScrH() * .93+ move,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER,2,Color(0,0,0,255))
@@ -373,7 +324,7 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 		local trace = LocalPlayer():GetEyeTrace()
 	--	print(table.ToString(trace,"Hity",true))
 		Ents = {}
-		if trace.Entity and trace.HitWorld == false and trace.HitPos:Distance(trace.StartPos) <= 100 and not trace.Entity:IsPlayer() and trace.Entity.PrintName then
+		if trace.Entity and trace.HitWorld == false and trace.HitPos:Distance(trace.StartPos) <= 200 and not trace.Entity:IsPlayer() and trace.Entity.PrintName then
 			local Name = trace.Entity:GetNWString("Name", trace.Entity:GetNWString("Shield-Name", trace.Entity.PrintName) )
 			local Weapon = trace.Entity
 			local Rarity = Weapon:GetNWInt("Rarity",0)

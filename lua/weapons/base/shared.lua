@@ -26,12 +26,13 @@ if SERVER then
 	target = net.ReadString() 
 	damage = net.ReadString()
 	inflictor = net.ReadString()
+	pos = net.ReadVector()
 	local endt = ents.GetByIndex(tonumber(target))
 	local weapon = ents.GetByIndex(inflictor)
 	local damageInfo = DamageInfo()
 	damageInfo:SetAttacker(ply)
 	damageInfo:SetInflictor(weapon)
-	damageInfo:SetDamagePosition(ply:GetEyeTrace().HitPos)
+	damageInfo:SetDamagePosition(pos)
 	damageInfo:SetDamageType(DMG_BULLET)
 	damageInfo:SetDamage(tonumber(damage))
  	damageInfo:SetDamageForce(ply:EyeAngles():Forward() * tonumber(damage))
@@ -303,11 +304,11 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	if CLIENT  then
 	tr.dmg = LocalPlayer():GetActiveWeapon().Primary.Damage
 	tr.e_dmg = 0
-	if tr.HitGroup != 0 then
-	tr.e_dmg = tostring(math.Clamp(dmg/tr.HitGroup * 3.5 - math.Round(LocalPlayer():GetPos():Distance(tr.Entity:GetPos()))/200,dmg * .25,9999))
-	else
+	--if tr.HitGroup != 0 then
+	--tr.e_dmg = tostring(math.Clamp(dmg/tr.HitGroup * 3.5 - math.Round(LocalPlayer():GetPos():Distance(tr.Entity:GetPos()))/200,dmg * .25,9999))
+	--else
 	tr.e_dmg = tostring(dmg)
-	end
+	--end
 	if tr.MatType == MAT_FLESH then ParticleEffect("blood_impact_red_01",tr.HitPos,tr.Entity:GetAngles()) 
 	if tr.HitGroup == 1 then
 	LocalPlayer():EmitSound("player/headshot"..math.random(1,2)..".wav",100,math.random(90,102))
@@ -319,6 +320,7 @@ function SWEP:CSShootBullet( dmg, recoil, numbul, cone )
 	net.WriteString(tostring(tr.Entity:EntIndex()))
 	net.WriteString(tr.e_dmg)
 	net.WriteString(tostring(self:EntIndex()))
+	net.WriteVector(tr.HitPos)
 	net.SendToServer()
 	if cvardmg:GetInt() == 1 and tr.Entity != Entity(0) then
 	print(tr.e_dmg)
@@ -787,15 +789,16 @@ end
 
 ---[[
 function SWEP:DrawWorldModel()
-local wm = self.WModel
+local wm = self.Owner.WModel
 if not IsValid(self.Owner) then
 self:DrawModel() return
 end
 local bone = self.Owner:LookupBone("ValveBiped.Bip01_R_Hand")
-if not IsValid(wm) then
-self.WModel = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
-self.WModel:SetNoDraw(true)
-self.WModel:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
+if not IsValid(wm) or self.Owner.WModel.Indx != self:EntIndex() then
+self.Owner.WModel = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
+self.Owner.WModel:SetNoDraw(true)
+self.Owner.WModel.Indx = self:EntIndex()
+self.Owner.WModel:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
 end
 if IsValid(wm) then
 if not wm:GetModelScale() != self.Owner:GetModelScale() then
