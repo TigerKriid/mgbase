@@ -790,15 +790,20 @@ end
 ---[[
 function SWEP:DrawWorldModel()
 local wm = self.Owner.WModel
-if not IsValid(self.Owner) then
+if not IsValid(self.Owner) or not self.Owner:HasWeapon(self:GetClass()) then
 self:DrawModel() return
 end
 local bone = self.Owner:LookupBone("ValveBiped.Bip01_R_Hand")
 if not IsValid(wm) or self.Owner.WModel.Indx != self:EntIndex() then
-self.Owner.WModel = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
-self.Owner.WModel:SetNoDraw(true)
-self.Owner.WModel.Indx = self:EntIndex()
-self.Owner.WModel:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
+	if IsValid(wm) then
+		self.Owner.WModel:SetModel(self.WorldModel)
+	else
+		self.Owner.WModel = ClientsideModel(self.WorldModel, RENDERGROUP_OPAQUE)
+	end
+	self.Owner.WModel:SetNoDraw(true)
+	self.Owner.WModel.Indx = self:EntIndex()
+	self.Owner.WModel:SetModelScale(self.Owner:GetModelScale()+(self.WorldModelScale or 0),0)
+	wm = self.Owner.WModel
 end
 if IsValid(wm) then
 if not wm:GetModelScale() != self.Owner:GetModelScale() then
@@ -939,6 +944,7 @@ function SWEP:DrawHUD()
 	draw.RoundedBox(0,LocalPlayer().ViewModel:GetAttachment(1).Pos:ToScreen().x -60,LocalPlayer().ViewModel:GetAttachment(1).Pos:ToScreen().y +106,ScreenScale(1),ScreenScale(1),Color(0,100,255,255))
 	draw.SimpleText("hi","BaseFont",LocalPlayer().ViewModel:GetAttachment(1).Pos:ToScreen().x -60,LocalPlayer().ViewModel:GetAttachment(1).Pos:ToScreen().y +40,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_LEFT)]]
 	end
+	draw.SimpleText("Snapscale:"..math.Round(cl_Snap,4),"LevelText",ScrW()*.5, ScrH()*.74,Color(255,255,0,255), TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 self:MergeHUDFunction()
 end
 
@@ -997,14 +1003,13 @@ if ply:GetActiveWeapon().Base == "base" then
 local self = ply:GetActiveWeapon()
 local owner = ply
 FOV = Lerp(15*FrameTime(),FOV,FOV_t)
-SApp = Lerp(6*FrameTime(),SApp,cl_Shake)
-cl_Snap = Lerp(15*FrameTime(),cl_Snap,0)
+SApp = Lerp(20*FrameTime(),SApp,cl_Shake)
 local m_PlayerCam = GAMEMODE:CalcView(ply,origin,angles,fov,vm_origin,vm_angles)
 if cvarweaponcam:GetInt() == 1 then
 m_PlayerCam.origin =  ply:GetViewModel():GetAttachment(1).Pos
 m_PlayerCam.angles = ply:GetViewModel():GetAttachment(1).Ang
 else
-m_PlayerCam.angles = Angle(angles.p - BlandVert * 100 - SAng.ViewPunch.p - VMPunch.EffectiveP * .5 - cl_Snap * .5,angles.y + e_BlandHoriz * 1.5 + VMPunch.EffectiveY * .5,angles.r - cl_Snap + m_vmRandomize/1.5 + VMPunch.EffectiveR * .5) + Angle(math.sin(CurTime() * (VMAng.SpeedP)) * VMAng.AngleP/12,math.sin(CurTime() * (VMAng.SpeedYaw)) * VMAng.AngleYaw/12,math.sin(CurTime() * (VMAng.SpeedR)) * VMAng.AngleR/12) + Angle(0+SAng.SmoothP,0+SAng.SmoothYaw,0)
+m_PlayerCam.angles = Angle(angles.p - BlandVert * 100 - SAng.ViewPunch.p - VMPunch.EffectiveP * .5 - cl_Snap,angles.y + e_BlandHoriz * 1.5 + VMPunch.EffectiveY * .5,angles.r - cl_Snap + m_vmRandomize/1.5 + VMPunch.EffectiveR * .5) + Angle(math.sin(CurTime() * (VMAng.SpeedP)) * VMAng.AngleP/12,math.sin(CurTime() * (VMAng.SpeedYaw)) * VMAng.AngleYaw/12,math.sin(CurTime() * (VMAng.SpeedR)) * VMAng.AngleR/12) + Angle(0+SAng.SmoothP,0+SAng.SmoothYaw,0)
 m_PlayerCam.origin = origin + owner:EyeAngles():Forward() * -(cl_Shake)
 end
 m_PlayerCam.fov = FOV--math.Clamp(90 + SApp,90,100)
@@ -1050,10 +1055,11 @@ SwayInput.e_cmdY = math.sin(SwayTimeY) * ylerp
 end
 ----
 if cl_lastshoottime < MGTime then
+cl_Snap = Lerp(25*FrameTime(),cl_Snap,0)
 FakeTime = FakeTime +  (10) * FrameTime()
 SAng.ViewPunch.p = Lerp(6*FrameTime(),SAng.ViewPunch.p,math.sin(FakeTime * 1) * cl_Shake * 3.5 )
 SAng.ViewPunch.y = Lerp(6*FrameTime(),SAng.ViewPunch.y,math.sin(FakeTime * 1) * m_vmRandomize *1 )
-cl_Snap = Lerp(6*FrameTime(),cl_Snap,math.sin(FakeTime) * (cl_Shake * 5))
+--cl_Snap = Lerp(6*FrameTime(),cl_Snap,math.sin(FakeTime) * (cl_Shake * 5))
 cl_firing = false
 if self.SimBone then
 m_BoneShake = Lerp(20*FrameTime(),m_BoneShake,0)
@@ -1067,10 +1073,11 @@ end
 SAng.ViewPunch.p = cl_Shake
 SAng.ViewPunch.y = m_vmRandomize
 if cl_ironsights == false then
-cl_Snap = 1 or self.SnapScale 
+cl_Snap = cl_Snap + (1 or self.SnapScale)
 else
-cl_Snap = .5 or self.SnapScale/2 
-end	
+cl_Snap = cl_Snap + (.5 or self.SnapScale/2)
+end
+
 end
 m_vmShake = math.sin(FakeTime * 1.5) * cl_Shake
 MGTime = MGTime +  (10) * FrameTime()
