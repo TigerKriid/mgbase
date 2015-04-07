@@ -75,10 +75,14 @@ if CLIENT then
 
 	net.Receive("client_leftovers",function(len,ply)
 	for i,p in pairs(player.GetAll()) do
+	for shit, mh in pairs(p.prop_data) do
+	if not mh.owner == p then
 	p.model:Remove()
 	p.model = nil
 	p:EmitSound("ui/item_hat_drop.wav")
 	p.prop_data = {}
+	end
+	end
 	end
 	end)
 
