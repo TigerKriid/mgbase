@@ -30,7 +30,8 @@ propent.isBroadcasted = false
 propent.oldCGroup = nil
 owner.hasshit = NULL
 net.Start("client_leftovers")
-net.WriteBool(true)
+--net.WriteBool(true)
+net.WriteEntity(owner)
 net.Broadcast()
 end
 end)
@@ -59,9 +60,12 @@ end
 
 if CLIENT then
 	net.Receive("PROP_PICKUP",function(len,ply)
-	for i,p in pairs(player.GetAll()) do
-	p.prop_data = net.ReadTable()
-	for sdi,data in pairs(p.prop_data) do
+	local data = net.ReadTable()[1]
+	--p.prop_data
+	--for i,p in pairs(player.GetAll()) do
+	
+	--for sdi,data in pairs(p.prop_data) do
+
 	data.prop = data.entity:GetModel()
 	data.pos = data.entity:GetPos()
 	data.ang = data.entity:GetAngles()
@@ -69,25 +73,29 @@ if CLIENT then
 	data.anglerp = data.ang
 	data.skins = data.entity:GetSkin()
 	data.time = CurTime()
-	end
-	end
+	data.owner.prop_data = data
+	--end
+	--end
 	end)
 
 	net.Receive("client_leftovers",function(len,ply)
-	for i,p in pairs(player.GetAll()) do
-	for shit, mh in pairs(p.prop_data) do
+		local p = net.ReadEntity()
+	--for i,p in pairs(player.GetAll()) do
+	--for shit, mh in pairs(p.prop_data) do
 	p.model:Remove()
 	p.model = nil
 	p:EmitSound("ui/item_hat_drop.wav")
 	p.prop_data = {}
-	end
-	end
+	--end
+	--end
 	end)
 
 	hook.Add("Think","dsjfhsjfksjdfksajdhfsa",function()
 	for ez, noob in pairs(player.GetAll()) do
-	if not noob.prop_data then return end
-	for i,p in pairs(noob.prop_data) do
+	if not noob.prop_data then continue end
+	if not noob.prop_data.owner then continue end
+	local p = noob.prop_data
+	--for i,p in pairs(noob.prop_data) do
 	if not p.owner.model then 
 	p.owner.model = ClientsideModel(p.prop,RENDERGROUP_VIEWMODEL)
 	p.owner.model:SetPos(p.pos)
@@ -125,7 +133,7 @@ if CLIENT then
 	end
 	end
 	if !IsValid(p.entity) and IsValid(p.owner.model) then p.owner.model:Remove() p.owner.model = nil noob.prop_data = {} end
-	end
+	--end
 	end
 	end)
 
