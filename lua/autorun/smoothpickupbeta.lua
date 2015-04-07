@@ -102,9 +102,9 @@ if CLIENT then
 	if p.skins != nil then
 	p.owner.model:SetSkin(p.skins)
 	end
-
+	
 	if not p.owner.throwforce then p.owner.throwforce = 0 end
-
+	if noob == p.owner then
 	if p.owner:KeyDown(IN_ATTACK2) then
 	p.owner.throwforce = math.Clamp(p.owner.throwforce + 5,0,600 - p.mass)
 	end
@@ -121,7 +121,7 @@ if CLIENT then
 	p.owner.throwforce = 0
 	end
 	end
-
+	end
 	if !IsValid(p.entity) and IsValid(p.owner.model) then p.owner.model:Remove() p.owner.model = nil noob.prop_data = {} end
 	end
 	end
