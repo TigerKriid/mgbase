@@ -264,8 +264,8 @@ end
 
 surface.SetDrawColor(0,0,0,255)
 surface.SetMaterial(Material("sprites/mechshield"))
-surface.DrawTexturedRectUV(ScrW() / 12.63+ move,ScrH() / 1.078+ move,ScreenScale(65),ScreenScale(5),2 + (CurTime()/2),0 ,0 + (CurTime()/2),.2)
-surface.DrawTexturedRectUV(ScrW() / 1.24+move,ScrH() / 1.058+move,ScreenScale(76),ScreenScale(5),2 - (CurTime()/2),0 ,0 - (CurTime()/2),.2)
+--surface.DrawTexturedRectUV(ScrW() / 12.63+ move,ScrH() / 1.078+ move,ScreenScale(65),ScreenScale(5),2 + (CurTime()/2),0 ,0 + (CurTime()/2),.2)
+--surface.DrawTexturedRectUV(ScrW() / 1.24+move,ScrH() / 1.058+move,ScreenScale(76),ScreenScale(5),2 - (CurTime()/2),0 ,0 - (CurTime()/2),.2)
 surface.SetDrawColor(0,215,255,255)
 surface.SetMaterial(Material("vgui/gfx/vgui/shell"))
 surface.DrawTexturedRectRotated(ScrW() / 1.06+move,ScrH() / 1.043+move,ScreenScale(12),ScreenScale(12),38)
@@ -274,7 +274,7 @@ surface.SetMaterial(Material("vgui/gfx/vgui/shell"))
 surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenScale(12),ScreenScale(12),40)
 	surface.SetDrawColor(0,0,0,255)
 	surface.SetMaterial(Material("sprites/mechshield"))
-	surface.DrawTexturedRectUV(ScrW() / 12.63+ move,ScrH() / 1.078+ move,ScreenScale(65),ScreenScale(5),2 + (CurTime()/2),0 ,0 + (CurTime()/2),.2)
+	--surface.DrawTexturedRectUV(ScrW() / 12.63+ move,ScrH() / 1.078+ move,ScreenScale(65),ScreenScale(5),2 + (CurTime()/2),0 ,0 + (CurTime()/2),.2)
 	--------------------
 	draw.SimpleTextOutlined("+","BL2Font_3",ScrW() * .075+ move,ScrH() * .93+ move,Color(255,255,255,255),TEXT_ALIGN_CENTER,TEXT_ALIGN_CENTER,2,Color(0,0,0,255))
 	draw.SimpleTextOutlined(hp,"BL2Font_4",ScrW() * .085+ move,ScrH() * .915+ move,Color(255,255,255,255),TEXT_ALIGN_LEFT,TEXT_ALIGN_LEFT,2,Color(0,0,0,255))
@@ -324,7 +324,11 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 		local trace = LocalPlayer():GetEyeTrace()
 	--	print(table.ToString(trace,"Hity",true))
 		Ents = {}
-		if trace.Entity and trace.HitWorld == false and trace.HitPos:Distance(trace.StartPos) <= 200 and not trace.Entity:IsPlayer() and trace.Entity.PrintName then
+		if trace.Entity and trace.HitWorld == false and trace.HitPos:Distance(trace.StartPos) <= 200 and not trace.Entity:IsPlayer() then
+			if trace.Entity:IsNPC() then
+				trace.Entity = trace.Entity:GetActiveWeapon()
+			end
+			if not IsValid(trace.Entity) then return end
 			local Name = trace.Entity:GetNWString("Name", trace.Entity:GetNWString("Shield-Name", trace.Entity.PrintName) )
 			local Weapon = trace.Entity
 			local Rarity = Weapon:GetNWInt("Rarity",0)
