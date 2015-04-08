@@ -12,7 +12,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWString("chest_type","strongbox")
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
 		c.moveBone = {[1] = {bone = "StrongBox_Door",
-				  		 ang = Angle(math.Rand(-60,-160),2,0),
+				  		 ang = Angle(-100 - math.sin(CurTime() * 1) * c.decreaseMe,2,0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
 				  		 angspeed = .03,
@@ -20,6 +20,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 				  		 posspeed = 0,
 				  		},
 				  }
+	c.decreaseMe = 50
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -193,10 +194,15 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 
 	if c:GetNWBool("chest_open") == true then
 	for ind,b in pairs(c.moveBone) do
+	b.ang = b.ang
+	b.pos = b.pos
 	b.lerpang = LerpAngle(b.angspeed,b.lerpang,b.ang)
 	c:ManipulateBoneAngles(c:LookupBone(b.bone),b.lerpang)
 	b.lerppos = LerpVector(b.posspeed,b.lerppos,b.pos)
 	c:ManipulateBonePosition(c:LookupBone(b.bone),b.lerppos)
+	if c.decreaseMe then
+	c.decreaseMe = c.decreaseMe - .5 
+    end
 	end
 	end
 
