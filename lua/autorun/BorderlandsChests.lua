@@ -10,12 +10,12 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","strongbox")
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
+	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
 		c.moveBone = {[1] = {bone = "StrongBox_Door",
-				  		 ang = Angle(190,2,0),
+				  		 ang = Angle(math.Rand(-60,-160),2,0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
-				  		 angspeed = .2,
+				  		 angspeed = .03,
 				  		 lerppos = Vector(0,0,0),
 				  		 posspeed = 0,
 				  		},
@@ -29,7 +29,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","cardboardbox")
 	c:SetModelScale(2)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
+	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
 	c.moveBone = {[1] = {bone = "Dummy01",
 				  		 ang = Angle(180,0,0),
 				  		 pos = Vector(0,0,0),
@@ -71,15 +71,62 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","locker")
-	c.Contents = table.Random{"mg_wpn_f2000","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
+	c.Contents = table.Random{"mg_wpn_f2000","item_ammo_ar2","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
 	c.moveBone = {[1] = {bone = "Locker_Door",
-				  		 ang = Angle(0,190,0),
+				  		 ang = Angle(0,math.Rand(-60,-160),0),
+				  		 pos = Vector(0,0,0),
+				  		 lerpang = Angle(0,0,0),
+				  		 angspeed = .03,
+				  		 lerppos = Vector(0,0,0),
+				  		 posspeed = 0,
+				  		},
+				  }
+	c.angLerp = Angle(0,0,0)
+	c:EmitSound("player/object_use_stop_01.wav")
+	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
+	end
+	------Bandid chest
+	if c:GetModel() == "models/rena/borderlands/epicbanditlocker.mdl" and c:GetNWBool("isChest") == false then
+	c:SetNWBool("isChest",true)
+	c:SetNWBool("chest_open",false)
+	c:SetNWString("chest_type","bandit chest")
+	c.Contents = table.Random{"mg_wpn_f2000","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
+	c.moveBone = {[1] = {bone = "Door_Hinge",
+				  		 ang = Angle(-101.111,0,0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
 				  		 angspeed = .2,
 				  		 lerppos = Vector(0,0,0),
 				  		 posspeed = 0,
 				  		},
+				  		[2] = {bone = "Main_Lift",
+				  		 ang = Angle(41.111,0,0),
+				  		 pos = Vector(30,0,30),
+				  		 lerpang = Angle(0,0,0),
+				  		 angspeed = .2,
+				  		 lerppos = Vector(0,0,0),
+				  		 posspeed = .2,
+				  		},
+				  }
+	c.angLerp = Angle(0,0,0)
+	c:EmitSound("player/object_use_stop_01.wav")
+	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
+	end
+	---------------dumpster
+	if c:GetModel() == "models/rena/borderlands/dumpster.mdl" and c:GetNWBool("isChest") == false then
+	c:SetNWBool("isChest",true)
+	c:SetNWBool("chest_open",false)
+	c:SetNWString("chest_type","dumpster")
+	c.Contents = table.Random{"mg_wpn_f2000","item_ammo_ar2","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
+	c.moveBone = {[1] = {bone = "Trashcan_Lid",
+				  		 ang = Angle(0,0,math.Rand(-88,-110)),
+				  		 pos = Vector(0,0,0),
+				  		 lerpang = Angle(0,0,0),
+				  		 angspeed = .03,
+				  		 lerppos = Vector(0,0,0),
+				  		 posspeed = 0,
+				  		},
+			
 				  }
 	c.angLerp = Angle(0,0,0)
 	c:EmitSound("player/object_use_stop_01.wav")
@@ -91,9 +138,9 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","laundry machine")
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357"}
+	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357"}
 	c.moveBone = {[1] = {bone = "Laundry_Lid",
-				  		 ang = Angle(0,90,0),
+				  		 ang = Angle(0,math.Rand(88,110),0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
 				  		 angspeed = .5,
@@ -110,14 +157,32 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","dahl ammo box")
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357"}
+	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
 	c.moveBone = {[1] = {bone = "Lid",
-				  		 ang = Angle(-90,0,0),
+				  		 ang = Angle(math.Rand(-88,-110),0,0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
-				  		 angspeed = .2,
+				  		 angspeed = .03,
 				  		 lerppos = Vector(0,0,0),
 				  		 posspeed = 0,
+				  		},
+				  }
+	c.angLerp = Angle(0,0,0)
+	c:EmitSound("player/object_use_stop_01.wav")
+	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
+	end
+	if c:GetModel() == "models/rena/borderlands/fridgey.mdl" and c:GetNWBool("isChest") == false then
+	c:SetNWBool("isChest",true)
+	c:SetNWBool("chest_open",false)
+	c:SetNWString("chest_type","fridge")
+	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
+	c.moveBone = {[1] = {bone = "Fridge_Doors",
+				  		 ang = Angle(0,math.Rand(45,145),0),
+				  		 pos = Vector(0,0,0),
+				  		 lerpang = Angle(0,0,0),
+				  		 angspeed = .03,
+				  		 lerppos = Vector(0,0,0),
+				  		 posspeed = 0.01,
 				  		},
 				  }
 	c.angLerp = Angle(0,0,0)
@@ -173,6 +238,11 @@ if CLIENT then
 	surface.SetDrawColor(0,255,0,50)
 	surface.DrawRect(0,0,5,10)
 	cam.End3D2D()
+	elseif chest:GetNWString("chest_type") == "bandit chest" then
+	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 70.7 + chest:GetAngles():Forward() * 22.4  + chest:GetAngles():Right() * -13,chest:GetAngles() + Angle(90,0,0),1)
+	surface.SetDrawColor(0,255,0,50)
+	surface.DrawRect(0,0,5,10)
+	cam.End3D2D()
 	elseif chest:GetNWString("chest_type") == "cardboardbox" then
 	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 9.7 + chest:GetAngles():Forward() * -2.1  + chest:GetAngles():Right() * 9,chest:GetAngles() + Angle(0,0,90),1)
 	surface.SetDrawColor(0,255,0,50)
@@ -182,6 +252,16 @@ if CLIENT then
 	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 20.5 + chest:GetAngles():Forward() * 1  + chest:GetAngles():Right() * -17.7,chest:GetAngles() + Angle(0,0,90),1)
 	surface.SetDrawColor(0,255,0,50)
 	surface.DrawRect(0,0,2,4)
+	cam.End3D2D()
+	elseif chest:GetNWString("chest_type") == "dumpster" then
+	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 38 + chest:GetAngles():Forward() * 16.17  + chest:GetAngles():Right() * -2.4,chest:GetAngles() + Angle(90,0,0),1)
+	surface.SetDrawColor(0,255,0,50)
+	surface.DrawRect(0,0,3,5)
+	cam.End3D2D()
+	elseif chest:GetNWString("chest_type") == "fridge" then
+	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 16 + chest:GetAngles():Forward() * 14.2  + chest:GetAngles():Right() * -5,chest:GetAngles() + Angle(90,0,0),1)
+	surface.SetDrawColor(0,255,0,50)
+	surface.DrawRect(0,0,3,8)
 	cam.End3D2D()
 	end
     end
