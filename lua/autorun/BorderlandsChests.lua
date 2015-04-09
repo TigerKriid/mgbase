@@ -10,6 +10,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","strongbox")
+	c.SpawnOffset = Vector(0,15,5)
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
@@ -20,6 +21,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","cardboardbox")
 	c:SetModelScale(2)
+	c.SpawnOffset = Vector(0,0,10)
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
@@ -28,6 +30,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	if c:GetModel() == "models/rena/borderlands/storagelocker.mdl" and c:GetNWBool("isChest") == false then
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
+	c.SpawnOffset = Vector(0,14,50)
 	c:SetNWString("chest_type","locker")
 	c.Contents = table.Random{"mg_wpn_f2000","item_ammo_ar2","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
 	c:EmitSound("player/object_use_stop_01.wav")
@@ -37,8 +40,9 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	if c:GetModel() == "models/rena/borderlands/epicbanditlocker.mdl" and c:GetNWBool("isChest") == false then
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
+	c.SpawnOffset = Vector(25,0,60)
 	c:SetNWString("chest_type","bandit chest")
-	c.Contents = table.Random{"mg_wpn_f2000","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
+	c.Contents = GetRandomDrop("lootchest")--table.Random{"mg_wpn_f2000","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40",}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -46,6 +50,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	if c:GetModel() == "models/rena/borderlands/dumpster.mdl" and c:GetNWBool("isChest") == false then
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
+	c.SpawnOffset = Vector(10,0,60)
 	c:SetNWString("chest_type","dumpster")
 	c.Contents = table.Random{"mg_wpn_f2000","item_ammo_ar2","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
 	c:EmitSound("player/object_use_stop_01.wav")
@@ -56,7 +61,8 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","shelf")
-	c.Contents = table.Random{"mg_wpn_f2000","item_ammo_ar2","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40","item_ammo_smg1","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil","nil"}
+	c.SpawnOffset = Vector(-35,0,60)
+	c.Contents = GetRandomDrop("lootchest")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -65,7 +71,8 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","toilet")
-	c.Contents = table.Random{"mg_wpn_f2000","mg_wpn_fnp","mg_wpn_tavor","mg_wpn_ump45","mg_wpn_m240b","mg_wpn_makarov","mg_wpn_mateba","mg_wpn_m9","mg_wpn_masada","mg_wpn_mp40"}
+	c.Contents = GetRandomDrop("lootchest")
+	c.SpawnOffset = Vector(-35,0,60)
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -74,6 +81,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","laundry machine")
+	c.SpawnOffset = Vector(0,25,40)
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357"}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
@@ -83,6 +91,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","dahl ammo box")
+	c.SpawnOffset = Vector(0,0,35)
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
@@ -92,6 +101,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("isChest",true)
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","fridge")
+	c.SpawnOffset = Vector(0,25,40)
 	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
@@ -100,13 +110,23 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 
 	if c:GetNWBool("isChest") == true and c:GetNWBool("chest_open") == false and p:GetEyeTrace().Entity == c and c:GetPos():Distance(p:EyePos()) < 100 and p:KeyPressed(IN_USE) then
 	c:SetNWBool("chest_open",true)
-	c:EmitSound("doors/de_bank_doors_move_0"..math.random(1,3)..".wav")
-	if c:GetNWString("chest_type") == "shelf" then
-		c:EmitSound("doors/door_metal_thin_close2.wav")
+	if c:GetNWString("chest_type") == "cardboardbox" then
+		c:EmitSound("physics/cardboard/cardboard_box_break3.wav")
+	else
+		c:EmitSound("doors/de_bank_doors_move_0"..math.random(1,3)..".wav")
+		if c:GetNWString("chest_type") == "shelf" then
+			c:EmitSound("doors/door_metal_thin_close2.wav")
+		end
 	end
 	if c.Contents != "nil" then
 	c.createdContent = ents.Create(tostring(c.Contents))
-	c.createdContent:SetPos(c:GetBonePosition(1) + c:GetBoneMatrix(1):GetAngles():Forward() * 15)
+	local pos = c:GetBonePosition(1) + c:GetBoneMatrix(1):GetAngles():Forward() * 15
+	if (c.SpawnOffset) then
+		local ang = c:GetAngles()
+		local new = c.SpawnOffset
+		pos = c:GetPos()+new.x*ang:Right()+new.z*ang:Up()+new.y*ang:Forward()
+	end
+	c.createdContent:SetPos(pos)
 	c.createdContent:SetAngles(c:GetAngles())
 	c.createdContent:Spawn()
 	c.createdContent:GetPhysicsObject():SetVelocity(c:GetAngles():Forward() * 1)
@@ -160,7 +180,7 @@ if CLIENT then
 				  		 ang = Angle(-101.111,0,0),
 				  		 pos = Vector(0,0,0),
 				  		 lerpang = Angle(0,0,0),
-				  		 angspeed = .2,
+				  		 angspeed = .025,
 				  		 lerppos = Vector(0,0,0),
 				  		 posspeed = 0,
 				  		},
@@ -168,7 +188,7 @@ if CLIENT then
 				  		 ang = Angle(41.111,0,0),
 				  		 pos = Vector(30,0,30),
 				  		 lerpang = Angle(0,0,0),
-				  		 angspeed = .2,
+				  		 angspeed = .01,
 				  		 lerppos = Vector(0,0,0),
 				  		 posspeed = .2,
 				  		},
@@ -334,9 +354,9 @@ if CLIENT then
 	surface.DrawRect(0,0,5,10)
 	cam.End3D2D()
 	elseif chest:GetNWString("chest_type") == "bandit chest" then
-	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 70.7 + chest:GetAngles():Forward() * 22.4  + chest:GetAngles():Right() * -13,chest:GetAngles() + Angle(90,0,0),1)
+	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 20.2 + chest:GetAngles():Forward() * -18.85  + chest:GetAngles():Right() * -5.05,chest:GetAngles() + Angle(0,0,90),1)
 	surface.SetDrawColor(0,255,0,50)
-	surface.DrawRect(0,0,5,10)
+	surface.DrawRect(0,0,7,5)
 	cam.End3D2D()
 	elseif chest:GetNWString("chest_type") == "cardboardbox" then
 	cam.Start3D2D(chest:GetPos() + chest:GetAngles():Up() * 9.7 + chest:GetAngles():Forward() * -2.1  + chest:GetAngles():Right() * 9,chest:GetAngles() + Angle(0,0,90),1)
