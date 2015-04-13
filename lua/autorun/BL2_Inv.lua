@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 if SERVER then
 
 concommand.Add("bl2_inv_open",function(ply)

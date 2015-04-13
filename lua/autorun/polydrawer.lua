@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 -- a handy tool to design anything by clicking on your screen.
 -- cursor's x and y are automatically scaled to ScrH() and ScrW(), so you literally have to copy paste what you get :)
 

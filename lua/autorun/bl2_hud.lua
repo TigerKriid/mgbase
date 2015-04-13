@@ -1,4 +1,5 @@
-
+AddCSLuaFile()
+if engine.ActiveGamemode() != "sandbox" then return end
 if SERVER then
 util.AddNetworkString("bl2_3d2dshield")
 util.AddNetworkString("bl2_xpscreen")
@@ -15,6 +16,45 @@ end)
 
 end
 if CLIENT then
+
+function BonusText(name,value)
+	if string.find(name,"Percent") then
+		local percent = (value-1)*100
+		if percent > 0 then
+			percent = "+"..percent
+		end
+		return percent.."% "..name
+	end
+	if string.find(name,"MaxHealth") then
+		local percent = (value-1)*100
+		if percent > 0 then
+			percent = "+"..percent
+		end
+		return percent.."% "..name
+	end
+	if string.find(name,"Chance") then
+		local percent = value
+		if percent > 0 then
+			percent = "+"..percent
+		end
+		return percent.."% "..name
+	end
+	if string.find(name,"Damage") then
+		local percent = (value-1)*100
+		if percent > 0 then
+			percent = "+"..percent
+		end
+		return percent.."% "..name
+	end
+	if string.find(name,"Regeneration") then
+		local percent = (value-1)*100
+		if percent > 0 then
+			percent = "+"..percent
+		end
+		return percent.."% "..name
+	end
+	return name..":"..value
+end
 local s_alpha1 = 0
 local s_alpha2 = 0
 local sound_1 = false
@@ -105,7 +145,7 @@ end
 hook.Add( "HUDPaint", "BL2_Render3", function()
 	local Armor = LocalPlayer():GetNWInt("Shield",LocalPlayer():Armor())
 	s_alpha1 = Lerp(1*FrameTime(),s_alpha1,Armor)
-	local hp = LocalPlayer():Health()
+	local hp = BL2.Health(LocalPlayer()) --LocalPlayer():Health()
 	local move = math.sin(CurTime() * 1) * 1
 	if BL2HUD_lvl_time <= 0.4 then
 		--print(BL2HUD_lvl_time)
@@ -180,14 +220,17 @@ surface.DrawPoly({
 	{x	=	ScrW() / 1.448+ move ,y	=	ScrH() / 1.055+ move},
 })
 surface.SetDrawColor(0,255,255,255)
-local xpneeded = math.Round((XPtoNextLevel*(BL2.GetLevel(LocalPlayer())*LevelMultiplicator)))
-local xpstate = BL2.GetXP(LocalPlayer())/xpneeded
+local Level = BL2.GetLevel(LocalPlayer())
+local xpneeded = BL2.GetXPForLevel(Level)
+local xp = BL2.GetXP(LocalPlayer())
+local xpstate = xp/xpneeded
 local xppos = Lerp(xpstate, ScreenScale(0),ScreenScale(250))
 
 surface.DrawRect(ScrW() * .296 + move,ScrH() * .956 + move,xppos,ScreenScale(5))
 
-local Level = BL2.GetLevel(LocalPlayer())
+
 draw.SimpleTextOutlined("Level: "..Level,"BL2Font_4",ScrW() * .3+move, ScrH() * .935+move,Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER,2,Color(0,0,0,255))
+draw.SimpleTextOutlined(xp.."/"..xpneeded,"BL2Font_4",ScrW() * .3+move, ScrH() * .905+move,Color(255,255,255,255), TEXT_ALIGN_LEFT, TEXT_ALIGN_CENTER,2,Color(0,0,0,255))
 
 ---------
 ----hp
@@ -206,7 +249,7 @@ surface.DrawPoly({
 {x	=	ScrW() / 4.375+ move,y	=	ScrH() / 1.07+ move},
 })
 
- local hpstate = hp/LocalPlayer():GetMaxHealth()
+ local hpstate = hp/BL2.MaxHealth(LocalPlayer())--:GetMaxHealth()
 surface.SetDrawColor(255,0,0,255)
 local pos = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.7)
 local pos2 = Lerp(hpstate, ScrW() / 12.631,ScrW() / 4.5)
@@ -328,7 +371,7 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 			if trace.Entity:IsNPC() then
 				trace.Entity = trace.Entity:GetActiveWeapon()
 			end
-			if not IsValid(trace.Entity) then return end
+			if not IsValid(trace.Entity) or (not trace.Entity:IsWeapon() and not trace.Entity:GetClass() == "ent_shield") then return end
 			local Name = trace.Entity:GetNWString("Name", trace.Entity:GetNWString("Shield-Name", trace.Entity.PrintName) )
 			local Weapon = trace.Entity
 			local Rarity = Weapon:GetNWInt("Rarity",0)
@@ -350,7 +393,7 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 			elseif Rarity == 35 then
 				DrawColor = Color(255, 255, 51,150)
 			elseif Rarity == 40 then
-				DrawColor = Color(0, 0, 0,150)
+				DrawColor = Color(0, 0, 0,255)
 			end
 			local H = ScrH()
 			local W = ScrW()
@@ -368,13 +411,20 @@ surface.DrawTexturedRectRotated(ScrW() / 1.062+move,ScrH() / 1.05+move,ScreenSca
 			if trace.Entity:GetClass() == "ent_shield" then
 				draw.SimpleText("Capacity:"..trace.Entity:GetNWInt("Shield-MaxShield",0),"LevelText",W*.56, H*.46,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Cooldown:"..trace.Entity:GetNWInt("Shield-Cooldown",0),"LevelText",W*.56, H*.48,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-				draw.SimpleText("RechargeRate:"..(trace.Entity:GetNWInt("Shield-RechargeRate",0)*(1.33^BL2.GetLevel(trace.Entity) or 0)),"LevelText",W*.56, H*.5,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				draw.SimpleText("RechargeRate:"..(trace.Entity:GetNWInt("Shield-RechargeRate",0)),"LevelText",W*.56, H*.5,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Rarity:"..Rarity,"LevelText",W*.56, H*.52,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				if trace.Entity.Effects then
+					local i = 1
+					for k,v in pairs(trace.Entity.Effects) do
+						draw.SimpleText(BonusText(k,v),"LevelText",W*.56, H*(.52+(0.02*i)),DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+						i = i + 1
+					end
+				end
 			end
 			if trace.Entity:IsWeapon() and trace.Entity.Primary then
 				draw.SimpleText("Damage:"..math.Round(trace.Entity.Primary.Damage*(1.13^BL2.GetLevel(trace.Entity))),"LevelText",W*.56, H*.46,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("ClipSize:"..trace.Entity.Primary.ClipSize,"LevelText",W*.56, H*.48,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
-				draw.SimpleText("Delay:"..math.Round(trace.Entity.Primary.Delay,3),"LevelText",W*.56, H*.5,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
+				draw.SimpleText("Delay:"..math.Round(60/60/trace.Entity.Primary.Delay,3),"LevelText",W*.56, H*.5,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				draw.SimpleText("Rarity:"..Rarity,"LevelText",W*.56, H*.52,DrawColor, TEXT_ALIGN_RIGHT, TEXT_ALIGN_CENTER)
 				if trace.Entity.Effects then
 					local i = 1

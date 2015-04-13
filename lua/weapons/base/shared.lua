@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 AddCSLuaFile("shared.lua")
 local cvardir = CreateConVar("basedebug_bulletdir","0",{FCVAR_CHEAT,FCVAR_REPLICATED})
 local cvarlaser = CreateClientConVar("basedebug_laser","0",false,false)
@@ -949,7 +950,7 @@ self:MergeHUDFunction()
 end
 
 function HideHUDlements( name )
-if !LocalPlayer():GetActiveWeapon():IsValid() then return end
+if !IsValid(LocalPlayer()) or !IsValid(LocalPlayer():GetActiveWeapon()) then return end
 	if LocalPlayer():GetActiveWeapon().Base == "base" then
     if (name == "CHudDamageIndicator") then
         return false

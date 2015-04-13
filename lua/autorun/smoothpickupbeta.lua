@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 -- makes props you pickup behave like portal 2's cubes: smooth and not laggy.
 -- this will give the player the ability to smoothly walk around while having props in their hands
 -- at the cost of not having cover behind picked up stuff.
@@ -22,7 +23,15 @@ propent:SetMaterial("")
 propent:SetNoDraw(false)
 propent:SetCollisionGroup(propent.oldCGroup)
 propent:GetPhysicsObject():EnableMotion(true)
+--propent:GetPhysicsObject():EnableDrag(false)
+propent:GetPhysicsObject():SetDragCoefficient(-91000)
+propent:GetPhysicsObject():SetAngleDragCoefficient(-91000)
+propent:GetPhysicsObject():SetDamping(-9990,-9990)
+propent:GetPhysicsObject():SetBuoyancyRatio(0)
+propent:GetPhysicsObject():EnableGravity(false)
+propent:GetPhysicsObject():SetMass(9999999)
 propent:GetPhysicsObject():SetVelocity(owner:GetVelocity() + owner:EyeAngles():Forward() * tonumber(simvelocity))
+propent:GetPhysicsObject():AddAngleVelocity(owner:GetVelocity() + owner:EyeAngles():Forward() * tonumber(simvelocity))
 propent:DrawShadow(true)
 propent:SetPos(position)
 propent:SetAngles(angles)
@@ -116,7 +125,7 @@ if CLIENT then
 	if not p.owner.throwforce then p.owner.throwforce = 0 end
 	if noob == p.owner then
 	if p.owner:KeyDown(IN_ATTACK2) then
-	p.owner.throwforce = math.Clamp(p.owner.throwforce + 5,0,600 - p.mass)
+	p.owner.throwforce = math.Clamp(p.owner.throwforce + 255,0,62500 - p.mass)
 	end
 
 	if CurTime() > p.time + .1 then

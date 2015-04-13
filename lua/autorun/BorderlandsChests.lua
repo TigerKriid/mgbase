@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 if SERVER then
 
 hook.Add("Think","BL2_CHESTSMANAGER",function()
@@ -11,7 +12,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","strongbox")
 	c.SpawnOffset = Vector(0,15,5)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
+	c.Contents = GetRandomDrop("ammo")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -22,7 +23,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWString("chest_type","cardboardbox")
 	c:SetModelScale(2)
 	c.SpawnOffset = Vector(0,0,10)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357","nil","nil","nil","nil"}
+	c.Contents = GetRandomDrop("ammo")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -82,7 +83,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","laundry machine")
 	c.SpawnOffset = Vector(0,25,40)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_ar2","item_ammo_pistol","item_box_buckshot","item_ammo_357"}
+	c.Contents = GetRandomDrop("ammo")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -92,7 +93,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","dahl ammo box")
 	c.SpawnOffset = Vector(0,0,35)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
+	c.Contents = GetRandomDrop("ammo")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -102,7 +103,7 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 	c:SetNWBool("chest_open",false)
 	c:SetNWString("chest_type","fridge")
 	c.SpawnOffset = Vector(0,25,40)
-	c.Contents = table.Random{"item_ammo_smg1","item_ammo_pistol","item_ammo_ar2","item_box_buckshot","item_ammo_357"}
+	c.Contents = GetRandomDrop("ammo")
 	c:EmitSound("player/object_use_stop_01.wav")
 	print("Found "..c:GetNWString("chest_type")..", setting up with item: "..c.Contents)
 	end
@@ -119,18 +120,23 @@ hook.Add("Think","BL2_CHESTSMANAGER",function()
 		end
 	end
 	if c.Contents != "nil" then
-	c.createdContent = ents.Create(tostring(c.Contents))
-	local pos = c:GetBonePosition(1) + c:GetBoneMatrix(1):GetAngles():Forward() * 15
-	if (c.SpawnOffset) then
-		local ang = c:GetAngles()
-		local new = c.SpawnOffset
-		pos = c:GetPos()+new.x*ang:Right()+new.z*ang:Up()+new.y*ang:Forward()
-	end
-	c.createdContent:SetPos(pos)
-	c.createdContent:SetAngles(c:GetAngles())
-	c.createdContent:Spawn()
-	c.createdContent:GetPhysicsObject():SetVelocity(c:GetAngles():Forward() * 1)
-	end
+			if c.Contents == "shield" then
+				c.createdContent = createRandomShield(c)
+			else
+				c.createdContent = ents.Create(tostring(c.Contents))
+				c.createdContent:Spawn()
+			end
+			local pos = c:GetBonePosition(1) + c:GetBoneMatrix(1):GetAngles():Forward() * 15
+			if (c.SpawnOffset) then
+				local ang = c:GetAngles()
+				local new = c.SpawnOffset
+				pos = c:GetPos()+new.x*ang:Right()+new.z*ang:Up()+new.y*ang:Forward()
+			end
+			c.createdContent:SetPos(pos)
+			c.createdContent:SetAngles(c:GetAngles())
+			
+			c.createdContent:GetPhysicsObject():SetVelocity(c:GetAngles():Forward() * 1)
+		end
 	end
 	end
 	end

@@ -1,3 +1,4 @@
+if engine.ActiveGamemode() != "sandbox" then return end
 if CLIENT then
 local PolyTable = {}
 local PolyTable_Index = 0
@@ -178,7 +179,7 @@ end
  end
 
 if (pl.PerkTime <= 0 or !IsValid(pl.PerkEntity) or pl.PerkEntity:Health() <= 0) and pl.BL2Class == "siren" then
-if pl.PerkEntity:Health() <= 0 then 
+if IsValid(pl.PerkEntity) and pl.PerkEntity:Health() <= 0 then 
 net.Start("BL2_Orbs")
 			   --V
 net.WriteString("1") ---ORBS!
